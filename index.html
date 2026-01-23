@@ -1,0 +1,970 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MamaPlus · Panel Cuidadoras</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    body {
+      font-family: 'Nunito', sans-serif;
+      background-color: #fdf8f1;
+    }
+
+    .glass-sidebar {
+      background: linear-gradient(180deg, #a5d5d5 0%, #8ebdbd 100%);
+    }
+
+    .table-container::-webkit-scrollbar {
+      height: 8px;
+    }
+
+    .table-container::-webkit-scrollbar-thumb {
+      background: #e2d1c3;
+      border-radius: 10px;
+    }
+
+    .status-pill {
+      transition: all 0.2s ease;
+    }
+
+    .status-pill:hover {
+      transform: scale(1.02);
+    }
+
+    .stat-card {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .stat-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+    }
+
+    .calendar-bg {
+      background-color: #f5eedf;
+    }
+
+    .fade-in {
+      animation: fadeIn 0.3s ease-in;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+
+<body class="text-slate-700">
+  <!-- LOGIN OVERLAY -->
+  <div id="login-overlay" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-[999] p-4">
+    <div class="min-h-full flex items-center justify-center">
+      <div class="bg-white rounded-3xl w-full max-w-md shadow-2xl overflow-hidden">
+        <div class="p-8 border-b border-slate-100">
+          <h2 class="text-2xl font-extrabold text-slate-800">Acceso a MamaPlus</h2>
+          <p class="text-slate-500 mt-1">Introduce tu token (lo recibes por Telegram) o abre el enlace con <b>?token=</b></p>
+        </div>
+        <div class="p-8">
+          <label class="block text-xs font-black uppercase text-slate-400 mb-2 tracking-widest">Token</label>
+          <input id="token-input" type="text" placeholder="Pega aquí tu token"
+            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-teal-500" />
+          <p id="login-error" class="text-sm text-red-600 font-bold mt-3 hidden"></p>
+          <div class="mt-6 grid grid-cols-2 gap-3">
+            <button id="login-clear"
+              class="px-6 py-3 bg-slate-100 text-slate-700 font-bold rounded-xl hover:bg-slate-200 transition-colors">
+              Limpiar
+            </button>
+            <button id="login-submit"
+              class="px-6 py-3 bg-teal-500 text-white font-bold rounded-xl shadow-lg shadow-teal-100 hover:bg-teal-600 transition-all">
+              Entrar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div id="toast" class="fixed bottom-5 left-1/2 -translate-x-1/2 hidden z-[1000]">
+    <div id="toast-inner" class="px-5 py-3 rounded-2xl shadow-xl bg-slate-900 text-white font-bold text-sm"></div>
+  </div>
+
+  <div class="min-h-screen flex flex-col md:flex-row">
+    <!-- Sidebar -->
+    <aside class="w-full md:w-72 glass-sidebar text-white p-8 flex flex-col shadow-2xl z-10">
+      <div class="flex-1">
+        <!-- LOGO AREA -->
+        <div class="mb-10 flex items-center gap-3 bg-white/20 p-3 rounded-2xl">
+          <div class="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-sm text-2xl">
+            🧸
+          </div>
+          <div>
+            <!-- CAMBIO AQUÍ: MamaPlus -->
+            <h1 class="text-xl font-extrabold leading-tight">MamaPlus<br>
+              <span class="text-teal-900/60 text-sm uppercase tracking-widest">Panel</span>
+            </h1>
+          </div>
+        </div>
+
+        <div class="mb-10 px-2">
+          <div class="flex items-center gap-3 mb-2">
+            <div class="w-10 h-10 rounded-full bg-teal-100 border-2 border-white overflow-hidden shadow-sm">
+              <img id="avatar-img" src="https://api.dicebear.com/7.x/avataaars/svg?seed=Claudia" alt="Avatar">
+            </div>
+            <div>
+              <p id="user-name" class="font-bold text-teal-900">—</p>
+              <p id="user-role" class="text-xs text-teal-800/70">Cuidadora</p>
+            </div>
+          </div>
+        </div>
+
+        <nav class="flex flex-col gap-2">
+          <button onclick="showTab('dashboard')" id="nav-dashboard"
+            class="nav-item group flex items-center gap-3 px-4 py-3 rounded-xl bg-white/20 font-bold transition-all w-full text-left">
+            <i data-lucide="calendar-range" class="w-5 h-5 text-white"></i> Mis Turnos
+          </button>
+
+          <button onclick="showTab('suplencias')" id="nav-suplencias"
+            class="nav-item group flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 font-semibold transition-all w-full text-left">
+            <i data-lucide="users" class="w-5 h-5 text-teal-100"></i> Suplencias
+          </button>
+
+          <button onclick="showTab('disponibilidad')" id="nav-disponibilidad"
+            class="nav-item group flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 font-semibold transition-all w-full text-left">
+            <i data-lucide="search" class="w-5 h-5 text-teal-100"></i> Disponibilidad
+          </button>
+
+          <button onclick="showTab('historial')" id="nav-historial"
+            class="nav-item group flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 font-semibold transition-all w-full text-left">
+            <i data-lucide="history" class="w-5 h-5 text-teal-100"></i> Historial
+          </button>
+        </nav>
+      </div>
+
+      <button onclick="logout()"
+        class="mt-8 flex items-center justify-center gap-2 w-full bg-teal-900/20 hover:bg-teal-900/40 border border-white/20 text-white font-bold rounded-xl py-3 transition-colors">
+        <i data-lucide="log-out" class="w-4 h-4"></i> Cerrar sesión
+      </button>
+    </aside>
+
+    <!-- Main Content -->
+    <main id="main-content" class="flex-1 p-4 md:p-10 overflow-hidden flex flex-col fade-in"></main>
+  </div>
+
+  <!-- MODAL TURNO -->
+  <div id="modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center hidden z-50 p-4">
+    <div class="bg-white rounded-3xl w-full max-w-sm shadow-2xl overflow-hidden transform transition-all scale-100">
+      <div class="bg-teal-500 p-6 text-white text-center">
+        <div class="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
+          <i data-lucide="clock" class="w-8 h-8"></i>
+        </div>
+        <h3 class="text-xl font-bold">Gestionar Turno</h3>
+        <p class="text-teal-50/80 text-sm mt-1" id="modal-details">—</p>
+      </div>
+
+      <div class="p-8">
+        <label class="block text-xs font-black uppercase text-slate-400 mb-2 tracking-widest">Tipo de Acción</label>
+        <select id="tipo-turno"
+          class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-teal-500 mb-3">
+          <option value="titular">✅ Tomar como Titular</option>
+          <option value="suplente">🙋‍♀️ Anotarme como Suplente</option>
+          <option value="cancelar">❌ Cancelar</option>
+          <option value="disponible">🔄 Marcar Disponible</option>
+        </select>
+
+        <p id="modal-error" class="text-sm text-red-600 font-bold mb-4 hidden"></p>
+
+        <div class="grid grid-cols-2 gap-3">
+          <button onclick="cerrarModal()"
+            class="px-6 py-3 bg-slate-100 text-slate-600 font-bold rounded-xl hover:bg-slate-200 transition-colors">Cerrar</button>
+          <button onclick="guardarTurno()"
+            class="px-6 py-3 bg-teal-500 text-white font-bold rounded-xl shadow-lg shadow-teal-100 hover:bg-teal-600 transition-all">Confirmar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL FILTROS (Disponibilidad) -->
+  <div id="filters-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 p-4">
+    <div class="min-h-full flex items-center justify-center">
+      <div class="bg-white rounded-3xl w-full max-w-md shadow-2xl overflow-hidden">
+        <div class="p-6 border-b border-slate-100 flex items-center justify-between">
+          <div>
+            <h3 class="text-xl font-extrabold text-slate-800">Filtros</h3>
+            <p class="text-slate-500 text-sm">Filtra slots disponibles en la semana actual</p>
+          </div>
+          <button onclick="closeFilters()" class="p-2 rounded-xl hover:bg-slate-100">
+            ✕
+          </button>
+        </div>
+        <div class="p-6 space-y-4">
+          <div>
+            <label class="block text-xs font-black uppercase text-slate-400 mb-2 tracking-widest">Día</label>
+            <select id="filter-day" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-bold">
+              <option value="all">Todos</option>
+              <option value="0">Lunes</option>
+              <option value="1">Martes</option>
+              <option value="2">Miércoles</option>
+              <option value="3">Jueves</option>
+              <option value="4">Viernes</option>
+              <option value="5">Sábado</option>
+              <option value="6">Domingo</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-black uppercase text-slate-400 mb-2 tracking-widest">Franja</label>
+            <select id="filter-hour" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-bold">
+              <option value="all">Todas</option>
+              <option value="10:00-11:00">10:00-11:00</option>
+              <option value="11:00-12:00">11:00-12:00</option>
+              <option value="12:00-13:00">12:00-13:00</option>
+              <option value="13:00-14:00">13:00-14:00</option>
+              <option value="14:00-15:00">14:00-15:00</option>
+              <option value="15:00-16:00">15:00-16:00</option>
+              <option value="16:00-17:00">16:00-17:00</option>
+              <option value="17:00-18:00">17:00-18:00</option>
+            </select>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3 pt-2">
+            <button onclick="closeFilters()" class="px-6 py-3 bg-slate-100 font-bold rounded-xl hover:bg-slate-200">Cerrar</button>
+            <button onclick="applyFilters()" class="px-6 py-3 bg-teal-500 text-white font-bold rounded-xl hover:bg-teal-600">Aplicar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /************************************************************
+     * CONFIG
+     ************************************************************/
+    // ✅ Tu n8n base (donde están /webhook/api/me, /webhook/api/turnos, /webhook/api/turno)
+    const API_BASE = "https://tinafactory-n8n.dmxwfe.easypanel.host";
+    const API_ME = `${API_BASE}/webhook/api/me`;
+    const API_TURNOS = `${API_BASE}/webhook/api/turnos`;
+    const API_GUARDAR = `${API_BASE}/webhook/api/turno`;
+
+    /************************************************************
+     * STATE
+     ************************************************************/
+    const horas = [
+      "10:00-11:00", "11:00-12:00", "12:00-13:00", "13:00-14:00",
+      "14:00-15:00", "15:00-16:00", "16:00-17:00", "17:00-18:00"
+    ];
+
+    let currentTab = 'dashboard';
+    let celdaSeleccionada = null;
+
+    let panelToken = null;
+    let currentUser = null;
+
+    // slotsMap: key = `${fecha}|${hora}` -> status
+    let slotsMap = new Map();
+    let slotsList = []; // array para listas (suplencias/disponibilidad)
+
+    const statusConfig = {
+      titular_mio:  { texto: 'Titular (tú)', bg: 'bg-emerald-50 text-emerald-700 border-emerald-100', emoji: '✅' },
+      titular_otro: { texto: 'Ocupado',      bg: 'bg-slate-100 text-slate-500 border-slate-200', emoji: '🔒' },
+      suplente_mio: { texto: 'Suplente (tú)',bg: 'bg-amber-50 text-amber-700 border-amber-100', emoji: '🙋‍♀️' },
+      disponible:   { texto: 'Disponible',   bg: 'bg-white/60 text-slate-400 border-orange-100/50', emoji: '🔄' },
+    };
+
+    /************************************************************
+     * HELPERS UI
+     ************************************************************/
+    function toast(msg) {
+      const t = document.getElementById('toast');
+      const inner = document.getElementById('toast-inner');
+      inner.textContent = msg;
+      t.classList.remove('hidden');
+      clearTimeout(window.__toastTimer);
+      window.__toastTimer = setTimeout(() => t.classList.add('hidden'), 2200);
+    }
+
+    function showLogin(show = true, errorMsg = "") {
+      const overlay = document.getElementById('login-overlay');
+      const err = document.getElementById('login-error');
+      if (show) {
+        overlay.classList.remove('hidden');
+        if (errorMsg) {
+          err.textContent = errorMsg;
+          err.classList.remove('hidden');
+        } else {
+          err.classList.add('hidden');
+        }
+      } else {
+        overlay.classList.add('hidden');
+        err.classList.add('hidden');
+      }
+    }
+
+    function logout() {
+      localStorage.removeItem('panel_token');
+      panelToken = null;
+      currentUser = null;
+      showLogin(true, "Has cerrado sesión. Introduce tu token para entrar.");
+    }
+
+    /************************************************************
+     * FECHAS / SEMANA
+     ************************************************************/
+    function startOfWeekMonday(date) {
+      const d = new Date(date);
+      d.setHours(0, 0, 0, 0);
+      const day = d.getDay(); // 0 dom ... 6 sáb
+      const diff = (day === 0 ? -6 : 1) - day;
+      d.setDate(d.getDate() + diff);
+      return d;
+    }
+
+    function addDays(date, n) {
+      const d = new Date(date);
+      d.setDate(d.getDate() + n);
+      return d;
+    }
+
+    function isoDate(date) {
+      const d = new Date(date);
+      d.setHours(0, 0, 0, 0);
+      return d.toISOString().slice(0, 10);
+    }
+
+    const fmtShort = new Intl.DateTimeFormat('es-ES', { day: '2-digit', month: 'short' });
+    const fmtLong = new Intl.DateTimeFormat('es-ES', { weekday: 'long', day: '2-digit', month: 'long' });
+
+    function formatWeekRange(startMonday) {
+      const start = startMonday;
+      const end = addDays(startMonday, 6);
+      const s = fmtShort.format(start).replace('.', '');
+      const e = fmtShort.format(end).replace('.', '');
+      return `${s} — ${e}`;
+    }
+
+    let currentWeekStart = startOfWeekMonday(new Date());
+
+    function buildDayHeadersHTML() {
+      const days = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+      return days.map((name, i) => {
+        const d = addDays(currentWeekStart, i);
+        const isWeekend = i >= 5;
+        return `
+          <th class="border-b border-orange-200/30 p-4 font-bold text-slate-700 ${isWeekend ? 'text-orange-600' : ''}">
+            <div class="leading-tight">${name}</div>
+            <div class="text-xs font-extrabold text-slate-400 mt-1">${fmtShort.format(d).replace('.', '')}</div>
+          </th>
+        `;
+      }).join('');
+    }
+
+    function setWeek(newWeekStart) {
+      currentWeekStart = startOfWeekMonday(newWeekStart);
+      if (currentTab === 'dashboard') renderDashboard();
+      if (currentTab === 'suplencias') renderSuplencias();
+      if (currentTab === 'disponibilidad') renderDisponibilidad();
+      lucide.createIcons();
+    }
+
+    /************************************************************
+     * API
+     ************************************************************/
+    async function apiMe(token) {
+      const url = `${API_ME}?token=${encodeURIComponent(token)}`;
+      const r = await fetch(url);
+      const data = await r.json();
+      if (!r.ok || !data.ok) throw new Error(data.message || "Token inválido");
+      return data.user;
+    }
+
+    async function apiTurnos(weekStartISO) {
+      const url = `${API_TURNOS}?token=${encodeURIComponent(panelToken)}&week_start=${encodeURIComponent(weekStartISO)}`;
+      const r = await fetch(url);
+      const data = await r.json();
+      if (!r.ok || !data.ok) throw new Error(data.message || "Error cargando turnos");
+      return data.slots || [];
+    }
+
+    function splitHora(horaRango) {
+      const [ini, fin] = horaRango.split('-');
+      return { ini, fin };
+    }
+
+    async function apiGuardarTurno({ fecha, horaRango, accion }) {
+      const { ini, fin } = splitHora(horaRango);
+      const payload = {
+        token: panelToken,
+        fecha,
+        hora_inicio: ini,
+        hora_fin: fin,
+        accion
+      };
+      const r = await fetch(API_GUARDAR, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await r.json();
+      if (!r.ok || data.ok === false) throw new Error(data.message || "Error guardando turno");
+      return data;
+    }
+
+    async function refreshWeekData() {
+      const weekISO = isoDate(currentWeekStart);
+      const slots = await apiTurnos(weekISO);
+
+      slotsList = slots;
+      slotsMap = new Map();
+
+      for (const s of slots) {
+        const hora = `${s.hora_inicio}-${s.hora_fin}`;
+        const key = `${s.fecha}|${hora}`;
+        slotsMap.set(key, s.status);
+      }
+    }
+
+    /************************************************************
+     * TABS
+     ************************************************************/
+    function showTab(tabId) {
+      currentTab = tabId;
+      const main = document.getElementById('main-content');
+      main.classList.remove('fade-in');
+      void main.offsetWidth;
+      main.classList.add('fade-in');
+
+      document.querySelectorAll('.nav-item').forEach(el => {
+        el.classList.remove('bg-white/20', 'font-bold');
+        el.classList.add('hover:bg-white/10', 'font-semibold');
+      });
+
+      const activeNav = document.getElementById(`nav-${tabId}`);
+      if (activeNav) {
+        activeNav.classList.add('bg-white/20', 'font-bold');
+        activeNav.classList.remove('hover:bg-white/10', 'font-semibold');
+      }
+
+      if (tabId === 'dashboard') renderDashboard();
+      else if (tabId === 'suplencias') renderSuplencias();
+      else if (tabId === 'disponibilidad') renderDisponibilidad();
+      else if (tabId === 'historial') renderHistorial();
+
+      lucide.createIcons();
+    }
+
+    /************************************************************
+     * RENDER: DASHBOARD
+     ************************************************************/
+    async function renderDashboard() {
+      const main = document.getElementById('main-content');
+
+      main.innerHTML = `
+        <header class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-10">
+          <div>
+            <h2 class="text-3xl font-extrabold text-slate-800 tracking-tight">Panel de Control ✨</h2>
+            <p class="text-slate-500 font-medium mt-1">Hola ${currentUser?.nombre || ''}, administra tus turnos por semana. Cambia la semana con el selector o las flechas.</p>
+          </div>
+          <div class="flex items-center gap-3">
+            <button onclick="exportToExcel()" class="bg-teal-500 text-white px-6 py-2.5 rounded-xl flex items-center gap-2 font-bold shadow-md shadow-teal-200 hover:bg-teal-600 transition-all">
+              <i data-lucide="download" class="w-4 h-4"></i> Exportar Turnos
+            </button>
+          </div>
+        </header>
+
+        <section class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+          <div class="stat-card bg-gradient-to-br from-emerald-50 via-teal-50 to-emerald-100 rounded-3xl p-6 shadow-lg flex items-center gap-5 border border-emerald-200/40">
+            <div class="w-14 h-14 bg-emerald-100/70 rounded-2xl flex items-center justify-center">
+              <i data-lucide="calendar-check" class="w-8 h-8 text-emerald-700"></i>
+            </div>
+            <div>
+              <p class="text-slate-600 text-xs font-bold uppercase tracking-widest">Asignados</p>
+              <p class="text-2xl font-black text-slate-800">—</p>
+            </div>
+          </div>
+
+          <div class="stat-card bg-gradient-to-br from-red-50 via-orange-50 to-red-100 rounded-3xl p-6 shadow-lg flex items-center gap-5 border border-red-200/40">
+            <div class="w-14 h-14 bg-red-100/70 rounded-2xl flex items-center justify-center">
+              <i data-lucide="calendar-x" class="w-8 h-8 text-red-700"></i>
+            </div>
+            <div>
+              <p class="text-slate-600 text-xs font-bold uppercase tracking-widest">Cancelados</p>
+              <p class="text-2xl font-black text-slate-800">—</p>
+            </div>
+          </div>
+
+          <div class="stat-card bg-gradient-to-br from-amber-50 via-orange-50 to-amber-100 rounded-3xl p-6 shadow-lg flex items-center gap-5 border border-amber-200/50">
+            <div class="w-14 h-14 bg-amber-100/70 rounded-2xl flex items-center justify-center">
+              <i data-lucide="user-plus" class="w-8 h-8 text-amber-700"></i>
+            </div>
+            <div>
+              <p class="text-slate-600 text-xs font-bold uppercase tracking-widest">Suplencias</p>
+              <p class="text-2xl font-black text-slate-800">—</p>
+            </div>
+          </div>
+        </section>
+
+        <div class="calendar-bg rounded-3xl border border-orange-200/50 shadow-xl flex-1 flex flex-col overflow-hidden">
+          <div class="p-6 border-b border-orange-200/30 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-4">
+               <button id="prev-week" class="p-2 hover:bg-orange-200/20 rounded-lg transition-colors text-orange-500" aria-label="Semana anterior">
+                 <i data-lucide="chevron-left" class="w-5 h-5"></i>
+               </button>
+
+               <div class="text-center">
+                 <h3 class="text-lg font-black text-slate-800 leading-tight">Semana</h3>
+                 <p id="week-label" class="text-sm font-bold text-slate-600">${formatWeekRange(currentWeekStart)}</p>
+               </div>
+
+               <button id="next-week" class="p-2 hover:bg-orange-200/20 rounded-lg transition-colors text-orange-500" aria-label="Semana siguiente">
+                 <i data-lucide="chevron-right" class="w-5 h-5"></i>
+               </button>
+            </div>
+
+            <div class="relative">
+              <select id="week-select" class="appearance-none bg-white/60 border border-orange-200/60 rounded-xl px-5 py-2.5 pr-10 font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-teal-500">
+                  <option value="current">Semana actual</option>
+                  <option value="next">Próxima semana</option>
+                  <option value="custom" selected>Otra semana</option>
+              </select>
+              <i data-lucide="chevron-down" class="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-orange-500"></i>
+            </div>
+          </div>
+
+          <div class="table-container overflow-auto flex-1">
+            <table class="min-w-full border-separate border-spacing-0">
+              <thead>
+                <tr class="bg-white/50">
+                  <th class="sticky left-0 z-20 bg-[#f5eedf] border-b border-r border-orange-200/30 p-4 text-xs uppercase tracking-widest text-slate-500 font-black">
+                    Horario
+                  </th>
+                  ${buildDayHeadersHTML()}
+                </tr>
+              </thead>
+              <tbody id="calendar-body"></tbody>
+            </table>
+          </div>
+        </div>
+      `;
+
+      document.getElementById('prev-week').onclick = () => setWeek(addDays(currentWeekStart, -7));
+      document.getElementById('next-week').onclick = () => setWeek(addDays(currentWeekStart, 7));
+      document.getElementById('week-select').onchange = (e) => {
+        const val = e.target.value;
+        const monday = startOfWeekMonday(new Date());
+        if (val === 'current') setWeek(monday);
+        if (val === 'next') setWeek(addDays(monday, 7));
+      };
+
+      try {
+        await refreshWeekData();
+        fillCalendar();
+      } catch (e) {
+        toast("No se pudo cargar la semana (API).");
+        console.error(e);
+      }
+    }
+
+    /************************************************************
+     * RENDER: SUPLENCIAS (ahora sí funciona)
+     * - Lista turnos ocupados por otra (titular_otro) en la semana actual
+     * - Botón Postularme llama a API con accion=suplente
+     ************************************************************/
+    async function renderSuplencias() {
+      const main = document.getElementById('main-content');
+
+      try { await refreshWeekData(); } catch (e) { console.error(e); }
+
+      const candidates = slotsList
+        .filter(s => s.status === 'titular_otro')
+        .slice(0, 10);
+
+      main.innerHTML = `
+        <header class="mb-10">
+          <h2 class="text-3xl font-extrabold text-slate-800 tracking-tight">Suplencias Disponibles 🙋‍♀️</h2>
+          <p class="text-slate-500 font-medium mt-1">Turnos ya ocupados donde puedes apuntarte como suplente.</p>
+        </header>
+
+        <div class="grid grid-cols-1 gap-4 overflow-y-auto pr-2">
+          ${candidates.length === 0 ? `
+            <div class="bg-white p-6 rounded-3xl border border-orange-100 shadow-sm">
+              <p class="font-bold text-slate-700">No hay suplencias disponibles esta semana.</p>
+              <p class="text-slate-500 text-sm mt-1">Cambia de semana en “Mis Turnos” para ver otras fechas.</p>
+            </div>
+          ` : candidates.map((s, idx) => {
+            const hora = `${s.hora_inicio}-${s.hora_fin}`;
+            return `
+              <div class="bg-white p-6 rounded-3xl border border-orange-100 shadow-sm flex flex-col md:flex-row justify-between items-center gap-4 hover:shadow-md transition-shadow">
+                <div class="flex items-center gap-5">
+                  <div class="w-12 h-12 bg-amber-100 rounded-2xl flex items-center justify-center text-amber-600">
+                    <i data-lucide="clock" class="w-6 h-6"></i>
+                  </div>
+                  <div>
+                    <h4 class="font-extrabold text-slate-800">Turno ocupado • opción suplente</h4>
+                    <p class="text-sm text-slate-500">${s.fecha} • ${hora}</p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-4">
+                  <span class="px-4 py-1.5 bg-amber-50 text-amber-700 text-xs font-bold rounded-full border border-amber-100">Disponible</span>
+                  <button onclick="postularme('${s.fecha}','${hora}')" class="bg-teal-500 text-white px-6 py-2 rounded-xl font-bold shadow-md shadow-teal-100 hover:bg-teal-600 transition-all">
+                    Postularme
+                  </button>
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      `;
+      lucide.createIcons();
+    }
+
+    async function postularme(fecha, horaRango) {
+      try {
+        await apiGuardarTurno({ fecha, horaRango, accion: 'suplente' });
+        toast("✅ Te has apuntado como suplente");
+        // Refresca lista
+        renderSuplencias();
+      } catch (e) {
+        toast("No se pudo postular (mira consola).");
+        console.error(e);
+      }
+    }
+
+    /************************************************************
+     * RENDER: DISPONIBILIDAD (Configurar filtros ahora abre modal)
+     * - Muestra slots "disponible" de la semana actual
+     ************************************************************/
+    async function renderDisponibilidad() {
+      const main = document.getElementById('main-content');
+
+      try { await refreshWeekData(); } catch (e) { console.error(e); }
+
+      const disponibles = slotsList.filter(s => s.status === 'disponible');
+
+      main.innerHTML = `
+        <header class="mb-10">
+          <h2 class="text-3xl font-extrabold text-slate-800 tracking-tight">Disponibilidad 🔎</h2>
+          <p class="text-slate-500 font-medium mt-1">Slots disponibles en la semana actual.</p>
+        </header>
+
+        <div class="bg-white rounded-3xl border border-orange-100 shadow-sm p-6">
+          <div class="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
+            <div>
+              <p class="text-sm font-bold text-slate-700">Filtros</p>
+              <p class="text-slate-500 text-sm mt-1">Puedes filtrar por día y franja horaria.</p>
+            </div>
+            <button onclick="openFilters()" class="bg-teal-500 text-white px-6 py-2 rounded-xl font-bold shadow-md shadow-teal-100 hover:bg-teal-600 transition-all">
+              Configurar filtros
+            </button>
+          </div>
+
+          <div class="mt-6" id="disp-list">
+            ${renderDisponibilidadList(disponibles)}
+          </div>
+        </div>
+      `;
+      lucide.createIcons();
+    }
+
+    function renderDisponibilidadList(items) {
+      if (!items || items.length === 0) {
+        return `
+          <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200">
+            <p class="font-bold text-slate-700">No hay slots disponibles con ese filtro.</p>
+          </div>
+        `;
+      }
+
+      return `
+        <div class="space-y-3">
+          ${items.slice(0, 30).map(s => {
+            const hora = `${s.hora_inicio}-${s.hora_fin}`;
+            return `
+              <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-between">
+                <div>
+                  <p class="font-extrabold text-slate-800">${s.fecha} • ${hora}</p>
+                  <p class="text-sm text-slate-500">Disponible</p>
+                </div>
+                <button onclick="reservarDesdeDisponibilidad('${s.fecha}','${hora}')" class="bg-teal-500 text-white px-5 py-2 rounded-xl font-bold hover:bg-teal-600">
+                  Tomar
+                </button>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      `;
+    }
+
+    async function reservarDesdeDisponibilidad(fecha, horaRango) {
+      try {
+        await apiGuardarTurno({ fecha, horaRango, accion: 'titular' });
+        toast("✅ Turno tomado como titular");
+        // refrescar vista
+        renderDisponibilidad();
+      } catch (e) {
+        toast("No se pudo tomar el turno.");
+        console.error(e);
+      }
+    }
+
+    function openFilters() {
+      document.getElementById('filters-modal').classList.remove('hidden');
+    }
+
+    function closeFilters() {
+      document.getElementById('filters-modal').classList.add('hidden');
+    }
+
+    function applyFilters() {
+      const day = document.getElementById('filter-day').value;     // 0..6 o all
+      const hour = document.getElementById('filter-hour').value;   // "10:00-11:00" o all
+
+      let list = slotsList.filter(s => s.status === 'disponible');
+
+      if (day !== 'all') {
+        const idx = Number(day);
+        const ws = new Date(currentWeekStart);
+        const d = addDays(ws, idx);
+        const iso = isoDate(d);
+        list = list.filter(s => s.fecha === iso);
+      }
+
+      if (hour !== 'all') {
+        list = list.filter(s => `${s.hora_inicio}-${s.hora_fin}` === hour);
+      }
+
+      const target = document.getElementById('disp-list');
+      if (target) target.innerHTML = renderDisponibilidadList(list);
+
+      closeFilters();
+      toast("Filtro aplicado ✅");
+    }
+
+    /************************************************************
+     * RENDER: HISTORIAL (placeholder)
+     ************************************************************/
+    function renderHistorial() {
+      const main = document.getElementById('main-content');
+      main.innerHTML = `
+        <header class="mb-10">
+          <h2 class="text-3xl font-extrabold text-slate-800 tracking-tight">Historial 🕒</h2>
+          <p class="text-slate-500 font-medium mt-1">Esto se puede conectar más adelante (eventos reales).</p>
+        </header>
+
+        <div class="bg-white rounded-3xl border border-orange-100 shadow-sm p-6">
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center">
+              <i data-lucide="activity" class="w-6 h-6 text-slate-600"></i>
+            </div>
+            <div>
+              <p class="font-extrabold text-slate-800">Actividad reciente</p>
+              <p class="text-slate-500 text-sm">Pendiente de conectar a BD si lo necesitas.</p>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    /************************************************************
+     * CALENDARIO (usa slotsMap de la API)
+     ************************************************************/
+    function fillCalendar() {
+      const tbody = document.getElementById('calendar-body');
+      if (!tbody) return;
+
+      tbody.innerHTML = '';
+
+      horas.forEach(hora => {
+        const row = document.createElement('tr');
+
+        const tdHora = document.createElement('td');
+        tdHora.className = 'sticky left-0 z-10 bg-[#f5eedf] border-b border-r border-orange-200/30 p-4 font-bold text-slate-500 text-center text-xs';
+        tdHora.textContent = hora;
+        row.appendChild(tdHora);
+
+        for (let i = 0; i < 7; i++) {
+          const dateObj = addDays(currentWeekStart, i);
+          const dateKey = isoDate(dateObj);
+          const key = `${dateKey}|${hora}`;
+          const status = slotsMap.get(key) || 'disponible';
+          const cfg = statusConfig[status] || statusConfig.disponible;
+
+          const cell = document.createElement('td');
+          cell.className = 'border-b border-orange-200/20 p-2 text-center align-middle';
+
+          const content = document.createElement('div');
+          content.className = `status-pill mx-auto px-3 py-3 rounded-xl border font-bold text-[10px] uppercase tracking-wider flex flex-col items-center gap-1 cursor-pointer shadow-sm ${cfg.bg}`;
+          content.innerHTML = `<span>${cfg.emoji}</span><span>${cfg.texto}</span>`;
+
+          content.dataset.hora = hora;
+          content.dataset.status = status;
+          content.dataset.date = dateKey;
+          content.onclick = () => abrirModal(content);
+
+          cell.appendChild(content);
+          row.appendChild(cell);
+        }
+
+        tbody.appendChild(row);
+      });
+    }
+
+    function abrirModal(cell) {
+      celdaSeleccionada = cell;
+
+      const dateObj = new Date(cell.dataset.date + 'T00:00:00');
+      const prettyDate = fmtLong.format(dateObj);
+      const hora = cell.dataset.hora;
+
+      // si está ocupado por otra, sugerimos suplente
+      const select = document.getElementById('tipo-turno');
+      const status = cell.dataset.status;
+
+      if (status === 'titular_otro') select.value = 'suplente';
+      else if (status === 'suplente_mio') select.value = 'cancelar';
+      else if (status === 'titular_mio') select.value = 'cancelar';
+      else select.value = 'titular';
+
+      document.getElementById('modal-details').textContent = `${prettyDate} • ${hora}`;
+      document.getElementById('modal-error').classList.add('hidden');
+      document.getElementById('modal').classList.remove('hidden');
+
+      lucide.createIcons();
+    }
+
+    function cerrarModal() {
+      document.getElementById('modal').classList.add('hidden');
+    }
+
+    async function guardarTurno() {
+      const accion = document.getElementById('tipo-turno').value; // titular/suplente/cancelar/disponible
+      const err = document.getElementById('modal-error');
+
+      if (!celdaSeleccionada) return;
+
+      try {
+        await apiGuardarTurno({
+          fecha: celdaSeleccionada.dataset.date,
+          horaRango: celdaSeleccionada.dataset.hora,
+          accion
+        });
+        cerrarModal();
+        toast("Guardado ✅");
+        await refreshWeekData();
+        fillCalendar();
+      } catch (e) {
+        err.textContent = e.message || "No se pudo guardar";
+        err.classList.remove('hidden');
+        console.error(e);
+      }
+    }
+
+    function exportToExcel() {
+      // Exporta lo que hay en pantalla según slotsMap
+      const wb = XLSX.utils.book_new();
+
+      const headers = ["Horario"];
+      for (let i = 0; i < 7; i++) {
+        const d = addDays(currentWeekStart, i);
+        const name = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'][i];
+        headers.push(`${name} ${fmtShort.format(d).replace('.', '')}`);
+      }
+
+      const wsData = [headers];
+
+      horas.forEach(hora => {
+        const row = [hora];
+        for (let i = 0; i < 7; i++) {
+          const d = addDays(currentWeekStart, i);
+          const dateKey = isoDate(d);
+          const key = `${dateKey}|${hora}`;
+          const st = slotsMap.get(key) || 'disponible';
+          row.push(statusConfig[st]?.texto || 'Disponible');
+        }
+        wsData.push(row);
+      });
+
+      const ws = XLSX.utils.aoa_to_sheet(wsData);
+      XLSX.utils.book_append_sheet(wb, ws, 'Turnos');
+      XLSX.writeFile(wb, 'turnos_mamaplus.xlsx');
+    }
+
+    /************************************************************
+     * AUTH INIT
+     ************************************************************/
+    function getTokenFromUrl() {
+      // ?token=...
+      const url = new URL(window.location.href);
+      const q = url.searchParams.get('token');
+      if (q) return q;
+
+      // #token=...
+      if (window.location.hash && window.location.hash.includes('token=')) {
+        const hash = window.location.hash.replace('#', '');
+        const parts = new URLSearchParams(hash);
+        return parts.get('token');
+      }
+      return null;
+    }
+
+    async function initAuth() {
+      // 1) token de URL > 2) token guardado
+      panelToken = getTokenFromUrl() || localStorage.getItem('panel_token');
+
+      if (!panelToken) {
+        showLogin(true);
+        return;
+      }
+
+      try {
+        currentUser = await apiMe(panelToken);
+        localStorage.setItem('panel_token', panelToken);
+
+        document.getElementById('user-name').textContent = currentUser.nombre || 'Cuidadora';
+        document.getElementById('avatar-img').src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(currentUser.nombre || 'MamaPlus')}`;
+
+        showLogin(false);
+        showTab('dashboard');
+      } catch (e) {
+        showLogin(true, e.message || "Token inválido");
+      }
+    }
+
+    document.getElementById('login-submit').addEventListener('click', async () => {
+      const val = document.getElementById('token-input').value.trim();
+      if (!val) return showLogin(true, "Pega un token para entrar.");
+
+      try {
+        currentUser = await apiMe(val);
+        panelToken = val;
+        localStorage.setItem('panel_token', panelToken);
+
+        document.getElementById('user-name').textContent = currentUser.nombre || 'Cuidadora';
+        document.getElementById('avatar-img').src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(currentUser.nombre || 'MamaPlus')}`;
+
+        showLogin(false);
+        toast("Bienvenida ✅");
+        showTab('dashboard');
+      } catch (e) {
+        showLogin(true, e.message || "Token inválido");
+      }
+    });
+
+    document.getElementById('login-clear').addEventListener('click', () => {
+      document.getElementById('token-input').value = '';
+      showLogin(true);
+    });
+
+    // Inicializar
+    initAuth();
+    lucide.createIcons();
+  </script>
+</body>
+
+</html>
