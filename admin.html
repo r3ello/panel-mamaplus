@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MamaPlus · Admin Premium</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #f1f5f9;
+      color: #1e293b;
+    }
+    .glass-card {
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #064e3b 0%, #065f46 100%);
+      transition: all 0.2s ease;
+    }
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(6, 78, 59, 0.2);
+    }
+    .slot-transition {
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .slot-transition:hover {
+      transform: scale(1.02);
+      z-index: 10;
+    }
+    /* Estilos para la tabla */
+    th.sticky-col, td.sticky-col {
+      position: sticky;
+      left: 0;
+      z-index: 20;
+      background: #f8fafc;
+    }
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track { background: #f1f5f9; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+  </style>
+</head>
+<body class="antialiased">
+  <div class="max-w-7xl mx-auto p-4 md:p-8">
+    <!-- Header -->
+    <header class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
+      <div>
+        <div class="flex items-center gap-2 mb-1">
+          <span class="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">Gestión Interna</span>
+        </div>
+        <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">Panel Admin <span class="text-emerald-700">MamaPlus</span></h1>
+        <p class="text-slate-500 font-medium">Control semanal de turnos y disponibilidad de cuidadoras.</p>
+      </div>
+      
+      <div class="flex items-center bg-white p-1.5 rounded-2xl shadow-sm border border-slate-200">
+        <button id="prev" class="p-2.5 hover:bg-slate-100 rounded-xl transition-colors text-slate-600">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+        </button>
+        <div id="range" class="px-6 py-2 font-bold text-slate-800 tabular-nums">Cargando fechas...</div>
+        <button id="next" class="p-2.5 hover:bg-slate-100 rounded-xl transition-colors text-slate-600">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Filtros -->
+    <section class="glass-card rounded-[2rem] p-6 mb-8 border border-slate-200">
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-5 items-end">
+        <div class="md:col-span-6">
+          <label class="block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2.5 ml-1">Buscar Cuidadora (Titular o Suplente)</label>
+          <div class="relative group">
+            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            </span>
+            <input id="q" type="text" class="w-full rounded-2xl border border-slate-200 bg-slate-50/50 pl-11 pr-4 py-3.5 font-semibold text-slate-700 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all"
+                   placeholder="Ej: Claudia..." />
+          </div>
+        </div>
+        <div class="md:col-span-4">
+          <label class="block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2.5 ml-1">Estado del Turno</label>
+          <select id="filter" class="w-full rounded-2xl border border-slate-200 bg-slate-50/50 px-4 py-3.5 font-semibold text-slate-700 focus:outline-none focus:border-emerald-500 transition-all appearance-none cursor-pointer">
+            <option value="all">Ver todos los turnos</option>
+            <option value="libre">Solo Libres</option>
+            <option value="ocupado">Solo Ocupados</option>
+            <option value="suplentes">Con Suplentes asignados</option>
+          </select>
+        </div>
+        <div class="md:col-span-2">
+          <button id="apply" class="btn-primary w-full text-white font-bold py-4 rounded-2xl shadow-lg flex items-center justify-center gap-2">
+            <span>Filtrar</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Grid de Horarios -->
+    <section class="glass-card rounded-[2rem] shadow-xl overflow-hidden border border-slate-200">
+      <div class="overflow-x-auto">
+        <table class="min-w-[1000px] w-full border-collapse">
+          <thead>
+            <tr class="bg-slate-50/80 border-b border-slate-200" id="thead">
+              <!-- JS Inyecta cabecera -->
+            </tr>
+          </thead>
+          <tbody id="tbody" class="bg-white/50">
+            <!-- JS Inyecta filas -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <!-- Modal Detalle -->
+  <div id="modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-[2px] hidden items-center justify-center p-4 z-[100]">
+    <div class="bg-white w-full max-w-md rounded-[2.5rem] overflow-hidden shadow-2xl transform transition-all border border-slate-100">
+      <div class="p-8 text-white relative btn-primary">
+        <button id="m-close-top" class="absolute top-6 right-6 text-white/60 hover:text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        </button>
+        <span class="inline-block px-3 py-1 rounded-full bg-white/20 text-[10px] font-bold uppercase tracking-tighter mb-3">Ficha de Turno</span>
+        <h3 class="text-2xl font-extrabold tracking-tight">Detalle del horario</h3>
+        <div id="m-title" class="text-emerald-100/90 mt-1 font-medium flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+            —
+        </div>
+      </div>
+      <div class="p-8 space-y-5">
+        <div class="group transition-all">
+          <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5 ml-1">Cuidadora Titular</p>
+          <div class="p-4 rounded-2xl bg-slate-50 border border-slate-100 flex items-center gap-4">
+             <div class="w-10 h-10 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold">T</div>
+             <div>
+                 <p id="m-titular" class="font-bold text-slate-900 leading-tight">—</p>
+                 <p id="m-titular-sub" class="text-xs text-slate-500 mt-0.5">Responsable principal</p>
+             </div>
+          </div>
+        </div>
+        
+        <div>
+          <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5 ml-1">Cuerpo de Suplentes</p>
+          <div class="p-4 rounded-2xl bg-amber-50/50 border border-amber-100/50 flex items-start gap-4">
+            <div class="w-10 h-10 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center font-bold flex-shrink-0 text-sm">S</div>
+            <p id="m-suplentes" class="font-semibold text-slate-700 text-sm leading-relaxed pt-1.5">—</p>
+          </div>
+        </div>
+
+        <div class="pt-4">
+          <button id="m-close" class="w-full px-5 py-4 rounded-2xl bg-slate-900 text-white font-bold hover:bg-slate-800 transition-colors shadow-lg">Cerrar Detalle</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = "https://tinafactory-n8n.dmxwfe.easypanel.host";
+    const API = `${API_BASE}/webhook/api/admin/slots`;
+
+    const days = ["Lunes","Martes","Miércoles","Jueves","Viernes","Sábado","Domingo"];
+    const hours = [
+      ["10:00","11:00"],["11:00","12:00"],["12:00","13:00"],["13:00","14:00"],
+      ["14:00","15:00"],["15:00","16:00"],["16:00","17:00"],["17:00","18:00"]
+    ];
+    
+    const fmt = new Intl.DateTimeFormat('es-ES',{day:'2-digit',month:'short'});
+    const fmtLong = new Intl.DateTimeFormat('es-ES',{weekday:'long',day:'2-digit',month:'long'});
+
+    function isoDate(d){
+      const x=new Date(d);
+      const y=x.getFullYear(), m=String(x.getMonth()+1).padStart(2,'0'), day=String(x.getDate()).padStart(2,'0');
+      return `${y}-${m}-${day}`;
+    }
+
+    function startOfWeekMonday(date){
+      const d=new Date(date); d.setHours(0,0,0,0);
+      const day=d.getDay();
+      const diff=(day===0?-6:1)-day;
+      d.setDate(d.getDate()+diff);
+      return d;
+    }
+
+    function addDays(date,n){const d=new Date(date); d.setDate(d.getDate()+n); return d;}
+
+    const url = new URL(location.href);
+    const ADMIN_TOKEN = url.searchParams.get('token') || localStorage.getItem('admin_token') || "";
+
+    let weekStart = startOfWeekMonday(new Date());
+    let slots = [];
+
+    function setRange(){
+      const end = addDays(weekStart,6);
+      document.getElementById('range').textContent = `${fmt.format(weekStart).replace('.','')} — ${fmt.format(end).replace('.','')}`;
+    }
+
+    function header(){
+      const th = document.getElementById('thead');
+      th.innerHTML = `<th class="sticky-col border-b border-slate-200 p-5 text-[10px] font-bold uppercase tracking-widest text-slate-400">Horario</th>` +
+        days.map((n,i)=>{
+          const d=addDays(weekStart,i);
+          const isToday = isoDate(new Date()) === isoDate(d);
+          return `<th class="border-b border-slate-200 p-5 font-bold ${isToday ? 'bg-emerald-50/50' : ''}">
+            <div class="text-slate-900">${n}</div>
+            <div class="text-[11px] text-slate-400 mt-0.5">${fmt.format(d).replace('.','')}</div>
+            ${isToday ? '<div class="w-1.5 h-1.5 bg-emerald-500 rounded-full mx-auto mt-2"></div>' : ''}
+          </th>`;
+        }).join('');
+    }
+
+    function getPillStyles(row, isHighlighted){
+      const highlightClass = isHighlighted ? "ring-4 ring-indigo-500/30 scale-[1.03] shadow-md z-10" : "";
+      
+      if(row.estado_slot === 'libre') 
+        return `bg-emerald-50 text-emerald-800 border-emerald-100 ${highlightClass}`;
+      if(row.suplentes_count > 0) 
+        return `bg-amber-50 text-amber-900 border-amber-200 ${highlightClass}`;
+      
+      return `bg-white text-slate-700 border-slate-200 ${highlightClass}`;
+    }
+
+    function render(filteredList = null){
+      const listToUse = filteredList || slots;
+      const tb = document.getElementById('tbody');
+      tb.innerHTML = "";
+
+      const q = (document.getElementById('q').value || "").toLowerCase().trim();
+
+      const map = new Map();
+      for(const s of listToUse){
+        const key = `${s.fecha}|${s.hora_inicio}-${s.hora_fin}`;
+        map.set(key, s);
+      }
+
+      for(const [h1,h2] of hours){
+        const tr=document.createElement('tr');
+        tr.className = "group hover:bg-slate-50/30 transition-colors";
+
+        const left=document.createElement('td');
+        left.className="sticky-col border-b border-slate-100 p-5 text-xs font-bold text-slate-500 tabular-nums";
+        left.textContent=`${h1} - ${h2}`;
+        tr.appendChild(left);
+
+        for(let i=0;i<7;i++){
+          const d=addDays(weekStart,i);
+          const fecha=isoDate(d);
+          const key=`${fecha}|${h1}-${h2}`;
+          const row=map.get(key);
+
+          const td=document.createElement('td');
+          td.className="border-b border-slate-100 p-2.5 min-w-[140px]";
+
+          if(row){
+            // Verificar si este slot coincide con la búsqueda para resaltarlo
+            const matchesQuery = q && (
+              (row.titular_nombre || "").toLowerCase().includes(q) ||
+              (row.suplentes_nombres || "").toLowerCase().includes(q)
+            );
+
+            const div=document.createElement('button');
+            div.className=`w-full text-left rounded-2xl border p-3.5 slot-transition font-semibold text-xs relative ${getPillStyles(row, matchesQuery)}`;
+            
+            div.innerHTML = `
+              <div class="flex items-center justify-between gap-1 mb-2">
+                <span class="px-1.5 py-0.5 rounded-md ${row.estado_slot === 'libre' ? 'bg-emerald-200/50 text-emerald-800' : 'bg-slate-200/50 text-slate-600'} text-[9px] font-bold uppercase">
+                  ${row.estado_slot === 'libre' ? "Libre" : "Ocupado"}
+                </span>
+                ${row.suplentes_count > 0 ? '<span class="text-amber-600"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg></span>' : ''}
+              </div>
+              <div class="text-[11px] font-extrabold text-slate-900 truncate">${row.titular_nombre || "— Sin titular"}</div>
+              <div class="mt-1.5 flex items-center gap-1.5">
+                <div class="flex -space-x-2">
+                   ${Array.from({length: Math.min(row.suplentes_count, 3)}).map(() => `<div class="w-4 h-4 rounded-full border border-white bg-slate-300"></div>`).join('')}
+                </div>
+                <span class="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">
+                  ${row.suplentes_count > 0 ? `${row.suplentes_count} Supl.` : ""}
+                </span>
+              </div>
+            `;
+
+            div.onclick = ()=> openModal(row);
+            td.appendChild(div);
+          } else {
+            td.innerHTML = `<div class="w-full h-20 rounded-2xl border border-dashed border-slate-200 flex items-center justify-center">
+              <span class="text-[10px] text-slate-300 font-bold uppercase tracking-widest">Vacío</span>
+            </div>`;
+          }
+          tr.appendChild(td);
+        }
+        tb.appendChild(tr);
+      }
+    }
+
+    function openModal(row){
+      const d = new Date(row.fecha+"T00:00:00");
+      document.getElementById('m-title').textContent = `${fmtLong.format(d)} • ${row.hora_inicio}-${row.hora_fin}`;
+      document.getElementById('m-titular').textContent = row.titular_nombre || "Sin cuidadora asignada";
+      document.getElementById('m-titular-sub').textContent = row.titular_email || "No hay correo registrado";
+      
+      const suplentesNames = row.suplentes_count > 0 ? row.suplentes_nombres : "No hay suplentes asignados para este turno.";
+      document.getElementById('m-suplentes').textContent = suplentesNames;
+      
+      const m = document.getElementById('modal');
+      m.classList.remove('hidden');
+      m.classList.add('flex');
+    }
+
+    function closeModal(){
+      const m = document.getElementById('modal');
+      m.classList.add('hidden');
+      m.classList.remove('flex');
+    }
+
+    document.getElementById('m-close').onclick = closeModal;
+    document.getElementById('m-close-top').onclick = closeModal;
+
+    async function load(){
+      if(!ADMIN_TOKEN){
+        alert("Falta token admin. Usa el enlace proporcionado.");
+        return;
+      }
+      localStorage.setItem('admin_token', ADMIN_TOKEN);
+
+      setRange();
+      header();
+
+      try {
+        const ws = isoDate(weekStart);
+        const r = await fetch(`${API}?token=${encodeURIComponent(ADMIN_TOKEN)}&week_start=${encodeURIComponent(ws)}`);
+        const data = await r.json();
+        if(!data.ok){ throw new Error(data.message); }
+        slots = data.slots;
+        applyFilters();
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    function applyFilters(){
+      const q = (document.getElementById('q').value || "").toLowerCase().trim();
+      const f = document.getElementById('filter').value;
+
+      let filtered = slots.slice();
+
+      // Filtro por estado
+      if(f === 'libre') filtered = filtered.filter(s => s.estado_slot === 'libre');
+      if(f === 'ocupado') filtered = filtered.filter(s => s.estado_slot === 'ocupado');
+      if(f === 'suplentes') filtered = filtered.filter(s => (s.suplentes_count || 0) > 0);
+
+      // Filtro por nombre (Titular O Suplentes)
+      if(q){
+        filtered = filtered.filter(s =>
+          (s.titular_nombre || "").toLowerCase().includes(q) ||
+          (s.suplentes_nombres || "").toLowerCase().includes(q)
+        );
+      }
+
+      render(filtered);
+    }
+
+    document.getElementById('apply').onclick = applyFilters;
+    document.getElementById('q').onkeyup = (e) => e.key === 'Enter' && applyFilters();
+    
+    document.getElementById('prev').onclick = ()=>{ weekStart = addDays(weekStart,-7); load(); };
+    document.getElementById('next').onclick = ()=>{ weekStart = addDays(weekStart, 7); load(); };
+
+    // Inicializar
+    load();
+  </script>
+</body>
+</html>
