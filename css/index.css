@@ -1,0 +1,85 @@
+/**
+ * MamaPlus - Caregiver Panel Styles
+ * Specific styles for index.html
+ */
+
+/* ========================================
+   BASE
+   ======================================== */
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: #f8fafc;
+}
+
+/* ========================================
+   SIDEBAR
+   ======================================== */
+.glass-sidebar {
+  background: linear-gradient(180deg, #064e3b 0%, #043a2c 100%);
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* ========================================
+   TABLE & CALENDAR
+   ======================================== */
+.table-container::-webkit-scrollbar {
+  height: 8px;
+}
+
+.table-container::-webkit-scrollbar-thumb {
+  background: #e2d1c3;
+  border-radius: 10px;
+}
+
+.calendar-bg {
+  background-color: #f5eedf;
+}
+
+/* ========================================
+   STATUS PILLS
+   ======================================== */
+.status-pill {
+  transition: all 0.2s ease;
+}
+
+.status-pill:hover {
+  transform: scale(1.02);
+}
+
+/* ========================================
+   STAT CARDS
+   ======================================== */
+.stat-card {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.stat-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.08), 0 8px 10px -6px rgb(0 0 0 / 0.08);
+}
+
+.stat-shell {
+  background: #fff;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+/* ========================================
+   NAVIGATION
+   ======================================== */
+.nav-active {
+  background: rgba(0, 0, 0, 0.22);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: inset 4px 0 0 #10b981;
+}
+
+.nav-inactive:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* ========================================
+   BUTTONS - ADDITIONAL
+   ======================================== */
+.btn-pill {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.18);
+}

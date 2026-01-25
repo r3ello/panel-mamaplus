@@ -1,0 +1,36 @@
+/**
+ * MamaPlus - Admin Panel Styles
+ * Specific styles for admin.html
+ */
+
+/* ========================================
+   BASE
+   ======================================== */
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background-color: #f1f5f9;
+  color: #1e293b;
+}
+
+/* ========================================
+   SLOT TRANSITIONS
+   ======================================== */
+.slot-transition {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.slot-transition:hover {
+  transform: scale(1.02);
+  z-index: 10;
+}
+
+/* ========================================
+   STICKY TABLE COLUMNS
+   ======================================== */
+th.sticky-col,
+td.sticky-col {
+  position: sticky;
+  left: 0;
+  z-index: 20;
+  background: #f8fafc;
+}
