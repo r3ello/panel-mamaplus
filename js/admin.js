@@ -31,8 +31,9 @@ function setRange() {
 
 function header() {
   const th = document.getElementById('thead');
-  th.innerHTML = `<th class="sticky-col border-b border-slate-200 p-5 text-[10px] font-bold uppercase tracking-widest text-slate-400">Horario</th>` +
-    DIAS.map((n, i) => {
+  const days = getLocalizedDays();
+  th.innerHTML = `<th class="sticky-col border-b border-slate-200 p-5 text-[10px] font-bold uppercase tracking-widest text-slate-400">${t('schedule')}</th>` +
+    days.map((n, i) => {
       const d = addDays(weekStart, i);
       const isToday = isoDate(new Date()) === isoDate(d);
       return `<th class="border-b border-slate-200 p-5 font-bold ${isToday ? 'bg-emerald-50/50' : ''}">
@@ -102,17 +103,17 @@ function render(filteredList = null) {
         div.innerHTML = `
           <div class="flex items-center justify-between gap-1 mb-2">
             <span class="px-1.5 py-0.5 rounded-md ${row.estado_slot === 'libre' ? 'bg-emerald-200/50 text-emerald-800' : 'bg-slate-200/50 text-slate-600'} text-[9px] font-bold uppercase">
-              ${row.estado_slot === 'libre' ? "Libre" : "Ocupado"}
+              ${row.estado_slot === 'libre' ? t('free') : t('occupied')}
             </span>
             ${row.suplentes_count > 0 ? '<span class="text-amber-600"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg></span>' : ''}
           </div>
-          <div class="text-[11px] font-extrabold text-slate-900 truncate">${row.titular_nombre || "— Sin titular"}</div>
+          <div class="text-[11px] font-extrabold text-slate-900 truncate">${row.titular_nombre || t('noTitular')}</div>
           <div class="mt-1.5 flex items-center gap-1.5">
             <div class="flex -space-x-2">
               ${Array.from({ length: Math.min(row.suplentes_count, 3) }).map(() => `<div class="w-4 h-4 rounded-full border border-white bg-slate-300"></div>`).join('')}
             </div>
             <span class="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">
-              ${row.suplentes_count > 0 ? `${row.suplentes_count} Supl.` : ""}
+              ${row.suplentes_count > 0 ? `${row.suplentes_count} ${t('substitutesShort')}` : ""}
             </span>
           </div>
         `;
@@ -121,7 +122,7 @@ function render(filteredList = null) {
         td.appendChild(div);
       } else {
         td.innerHTML = `<div class="w-full h-20 rounded-2xl border border-dashed border-slate-200 flex items-center justify-center">
-          <span class="text-[10px] text-slate-300 font-bold uppercase tracking-widest">Vacío</span>
+          <span class="text-[10px] text-slate-300 font-bold uppercase tracking-widest">${t('empty')}</span>
         </div>`;
       }
       tr.appendChild(td);
@@ -137,10 +138,10 @@ function render(filteredList = null) {
 function openModal(row) {
   const d = new Date(row.fecha + "T00:00:00");
   document.getElementById('m-title').textContent = `${fmtLong.format(d)} - ${row.hora_inicio}-${row.hora_fin}`;
-  document.getElementById('m-titular').textContent = row.titular_nombre || "Sin cuidadora asignada";
-  document.getElementById('m-titular-sub').textContent = row.titular_email || "No hay correo registrado";
+  document.getElementById('m-titular').textContent = row.titular_nombre || t('noAssignedCaregiver');
+  document.getElementById('m-titular-sub').textContent = row.titular_email || t('noEmailRegistered');
 
-  const suplentesNames = row.suplentes_count > 0 ? row.suplentes_nombres : "No hay suplentes asignados para este turno.";
+  const suplentesNames = row.suplentes_count > 0 ? row.suplentes_nombres : t('noSubstitutesAssigned');
   document.getElementById('m-suplentes').textContent = suplentesNames;
 
   const m = document.getElementById('modal');
@@ -160,7 +161,7 @@ function closeModal() {
 
 async function load() {
   if (!ADMIN_TOKEN) {
-    alert("Falta token admin. Usa el enlace proporcionado.");
+    alert(t('missingAdminToken'));
     return;
   }
   localStorage.setItem('admin_token', ADMIN_TOKEN);
@@ -235,6 +236,28 @@ function initAdminApp() {
   initAdminToken();
   initEventHandlers();
   load();
+
+  // Listen for language changes to refresh dynamic content
+  window.addEventListener('languageChanged', () => {
+    // Update select options text
+    updateAdminSelectOptions();
+    // Reload the view
+    if (ADMIN_TOKEN) {
+      header();
+      render();
+    }
+  });
+}
+
+function updateAdminSelectOptions() {
+  // Update filter select options
+  const filterSelect = document.getElementById('filter');
+  if (filterSelect) {
+    filterSelect.querySelectorAll('option').forEach(opt => {
+      const key = opt.getAttribute('data-i18n');
+      if (key) opt.textContent = t(key);
+    });
+  }
 }
 
 // Start the application when DOM is ready

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" id="html-root">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -20,6 +20,32 @@
   <!-- Custom CSS -->
   <link rel="stylesheet" href="css/common.css">
   <link rel="stylesheet" href="css/index.css">
+
+  <!-- Language Switcher Styles -->
+  <style>
+    .lang-switcher {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 0.75rem;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .lang-switcher:hover {
+      background: rgba(255,255,255,0.2);
+    }
+    .lang-flag {
+      font-size: 1rem;
+    }
+    .lang-text {
+      font-weight: 700;
+      font-size: 0.75rem;
+      color: white;
+    }
+  </style>
 </head>
 
 <body class="text-slate-700">
@@ -37,22 +63,32 @@
   <div id="login-overlay" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-[999] p-4">
     <div class="min-h-full flex items-center justify-center">
       <div class="bg-white rounded-3xl w-full max-w-md shadow-2xl overflow-hidden">
-        <div class="p-8 border-b border-slate-100">
-          <h2 class="text-2xl font-extrabold text-slate-800">Acceso a MamaPlus</h2>
-          <p class="text-slate-500 mt-1">Introduce tu token (lo recibes por Telegram) o abre el enlace con <b>?token=</b></p>
+        <!-- Language switcher in login -->
+        <div class="flex justify-end p-4 pb-0">
+          <button onclick="toggleLanguage()" class="flex items-center gap-2 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors">
+            <span id="login-lang-flag">🇪🇸</span>
+            <span class="text-xs font-bold text-slate-600" id="login-lang-text">ES</span>
+            <span class="text-slate-400">|</span>
+            <span>🇩🇪</span>
+            <span class="text-xs font-bold text-slate-400">DE</span>
+          </button>
+        </div>
+        <div class="p-8 pt-4 border-b border-slate-100">
+          <h2 class="text-2xl font-extrabold text-slate-800" data-i18n="accessToMamaPlus">Acceso a MamaPlus</h2>
+          <p class="text-slate-500 mt-1"><span data-i18n="tokenInstructions">Introduce tu token (lo recibes por Telegram) o abre el enlace con</span> <b>?token=</b></p>
         </div>
         <div class="p-8">
-          <label class="block text-xs font-black uppercase text-slate-400 mb-2 tracking-widest">Token</label>
-          <input id="token-input" type="text" placeholder="Pega aquí tu token"
+          <label class="block text-xs font-black uppercase text-slate-400 mb-2 tracking-widest" data-i18n="token">Token</label>
+          <input id="token-input" type="text" data-i18n-placeholder="pasteToken" placeholder="Pega aquí tu token"
             class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-900/30" />
           <p id="login-error" class="text-sm text-red-600 font-bold mt-3 hidden"></p>
           <div class="mt-6 grid grid-cols-2 gap-3">
             <button id="login-clear"
-              class="px-6 py-3 bg-slate-100 text-slate-700 font-bold rounded-xl hover:bg-slate-200 transition-colors">
+              class="px-6 py-3 bg-slate-100 text-slate-700 font-bold rounded-xl hover:bg-slate-200 transition-colors" data-i18n="clear">
               Limpiar
             </button>
             <button id="login-submit"
-              class="px-6 py-3 btn-primary text-white font-bold rounded-xl transition-all">
+              class="px-6 py-3 btn-primary text-white font-bold rounded-xl transition-all" data-i18n="enter">
               Entrar
             </button>
           </div>
@@ -82,57 +118,67 @@
             </div>
             <div class="leading-tight">
               <div class="text-white text-lg font-extrabold tracking-tight">MamaPlus</div>
-              <div class="text-white/60 text-xs font-black uppercase tracking-[0.22em]">Administración</div>
+              <div class="text-white/60 text-xs font-black uppercase tracking-[0.22em]" data-i18n="administration">Administración</div>
             </div>
           </div>
 
           <div class="mt-3 h-px bg-white/10"></div>
 
           <div class="mt-3 flex items-center justify-between">
-            <span class="text-white/70 text-xs font-bold">Panel de turnos</span>
+            <span class="text-white/70 text-xs font-bold" data-i18n="shiftPanel">Panel de turnos</span>
             <span class="text-emerald-200/90 text-[11px] font-black uppercase tracking-widest">2026</span>
           </div>
         </div>
 
         <!-- Avatar with caregiver name -->
-        <div class="mb-10 px-2">
+        <div class="mb-6 px-2">
           <div class="flex items-center gap-3 mb-2">
             <div class="w-10 h-10 rounded-full bg-white/10 border border-white/25 overflow-hidden shadow-sm flex items-center justify-center">
               <img id="avatar-img" src="./assets/logo.png" alt="MamaPlus" class="w-full h-full object-contain p-1">
             </div>
             <div>
               <p id="user-name" class="font-bold text-white">—</p>
-              <p id="user-role" class="text-xs text-white/70">Cuidadora</p>
+              <p id="user-role" class="text-xs text-white/70" data-i18n="caregiver">Cuidadora</p>
             </div>
           </div>
         </div>
 
+        <!-- Language Switcher -->
+        <button onclick="toggleLanguage()" id="lang-switcher"
+          class="mb-6 lang-switcher w-full justify-center">
+          <span class="lang-flag" id="lang-flag">🇪🇸</span>
+          <span class="lang-text" id="lang-btn-text">ES</span>
+          <span class="text-white/60 text-xs">|</span>
+          <span class="lang-flag" id="lang-flag-alt">🇩🇪</span>
+          <span class="text-white/60 lang-text" id="lang-btn-text-alt">DE</span>
+        </button>
+
         <nav class="flex flex-col gap-2">
           <button onclick="showTab('dashboard')" id="nav-dashboard"
             class="nav-item nav-active group flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all w-full text-left">
-            <i data-lucide="calendar-range" class="w-5 h-5 text-white"></i> Mis Turnos
+            <i data-lucide="calendar-range" class="w-5 h-5 text-white"></i> <span data-i18n="myShifts">Mis Turnos</span>
           </button>
 
           <button onclick="showTab('suplencias')" id="nav-suplencias"
             class="nav-item nav-inactive group flex items-center gap-3 px-4 py-3 rounded-xl transition-all w-full text-left">
-            <i data-lucide="users" class="w-5 h-5 text-white/80"></i> Suplencias
+            <i data-lucide="users" class="w-5 h-5 text-white/80"></i> <span data-i18n="substitutions">Suplencias</span>
           </button>
 
           <button onclick="showTab('disponibilidad')" id="nav-disponibilidad"
             class="nav-item nav-inactive group flex items-center gap-3 px-4 py-3 rounded-xl transition-all w-full text-left">
-            <i data-lucide="search" class="w-5 h-5 text-white/80"></i> Disponibilidad
+            <i data-lucide="search" class="w-5 h-5 text-white/80"></i> <span data-i18n="availability">Disponibilidad</span>
           </button>
 
           <button onclick="showTab('historial')" id="nav-historial"
             class="nav-item nav-inactive group flex items-center gap-3 px-4 py-3 rounded-xl transition-all w-full text-left">
-            <i data-lucide="history" class="w-5 h-5 text-white/80"></i> Historial
+            <i data-lucide="history" class="w-5 h-5 text-white/80"></i> <span data-i18n="history">Historial</span>
           </button>
         </nav>
       </div>
 
       <button onclick="logout()"
         class="mt-8 flex items-center justify-center gap-2 w-full bg-black/20 hover:bg-black/30 border border-white/10 text-white font-bold rounded-xl py-3 transition-colors">
-        <i data-lucide="log-out" class="w-4 h-4"></i> Cerrar sesión
+        <i data-lucide="log-out" class="w-4 h-4"></i> <span data-i18n="logout">Cerrar sesión</span>
       </button>
     </aside>
 
@@ -147,29 +193,29 @@
         <div class="w-16 h-16 bg-white/15 rounded-full flex items-center justify-center mx-auto mb-4">
           <i data-lucide="clock" class="w-8 h-8"></i>
         </div>
-        <h3 class="text-xl font-bold">Gestionar Turno</h3>
+        <h3 class="text-xl font-bold" data-i18n="manageShift">Gestionar Turno</h3>
         <p class="text-white/80 text-sm mt-1" id="modal-details">—</p>
       </div>
 
       <div class="p-8">
-        <label class="block text-xs font-black uppercase text-slate-400 mb-2 tracking-widest">Tipo de Acción</label>
+        <label class="block text-xs font-black uppercase text-slate-400 mb-2 tracking-widest" data-i18n="actionType">Tipo de Acción</label>
         <select id="tipo-turno"
           class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-900/30 mb-3">
-          <option value="titular">Tomar como Titular</option>
-          <option value="suplente">Anotarme como Suplente</option>
-          <option value="cancelar">Cancelar</option>
-          <option value="disponible">Marcar Disponible</option>
+          <option value="titular" data-i18n="takeAsTitular">Tomar como Titular</option>
+          <option value="suplente" data-i18n="signUpAsSubstitute">Anotarme como Suplente</option>
+          <option value="cancelar" data-i18n="cancel">Cancelar</option>
+          <option value="disponible" data-i18n="markAvailable">Marcar Disponible</option>
         </select>
 
         <p id="modal-error" class="text-sm text-red-600 font-bold mb-4 hidden"></p>
 
         <div class="grid grid-cols-2 gap-3">
           <button onclick="cerrarModal()"
-            class="px-6 py-3 bg-slate-100 text-slate-600 font-bold rounded-xl hover:bg-slate-200 transition-colors">
+            class="px-6 py-3 bg-slate-100 text-slate-600 font-bold rounded-xl hover:bg-slate-200 transition-colors" data-i18n="close">
             Cerrar
           </button>
           <button onclick="guardarTurno()"
-            class="px-6 py-3 btn-primary text-white font-bold rounded-xl transition-all">
+            class="px-6 py-3 btn-primary text-white font-bold rounded-xl transition-all" data-i18n="confirm">
             Confirmar
           </button>
         </div>
@@ -183,29 +229,29 @@
       <div class="bg-white rounded-3xl w-full max-w-md shadow-2xl overflow-hidden">
         <div class="p-6 border-b border-slate-100 flex items-center justify-between">
           <div>
-            <h3 class="text-xl font-extrabold text-slate-800">Filtros</h3>
-            <p class="text-slate-500 text-sm">Filtra slots disponibles en la semana actual</p>
+            <h3 class="text-xl font-extrabold text-slate-800" data-i18n="filters">Filtros</h3>
+            <p class="text-slate-500 text-sm" data-i18n="filterAvailableSlots">Filtra slots disponibles en la semana actual</p>
           </div>
           <button onclick="closeFilters()" class="p-2 rounded-xl hover:bg-slate-100">✕</button>
         </div>
         <div class="p-6 space-y-4">
           <div>
-            <label class="block text-xs font-black uppercase text-slate-400 mb-2 tracking-widest">Día</label>
+            <label class="block text-xs font-black uppercase text-slate-400 mb-2 tracking-widest" data-i18n="day">Día</label>
             <select id="filter-day" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-bold">
-              <option value="all">Todos</option>
-              <option value="0">Lunes</option>
-              <option value="1">Martes</option>
-              <option value="2">Miércoles</option>
-              <option value="3">Jueves</option>
-              <option value="4">Viernes</option>
-              <option value="5">Sábado</option>
-              <option value="6">Domingo</option>
+              <option value="all" data-i18n="all">Todos</option>
+              <option value="0" data-i18n="monday">Lunes</option>
+              <option value="1" data-i18n="tuesday">Martes</option>
+              <option value="2" data-i18n="wednesday">Miércoles</option>
+              <option value="3" data-i18n="thursday">Jueves</option>
+              <option value="4" data-i18n="friday">Viernes</option>
+              <option value="5" data-i18n="saturday">Sábado</option>
+              <option value="6" data-i18n="sunday">Domingo</option>
             </select>
           </div>
           <div>
-            <label class="block text-xs font-black uppercase text-slate-400 mb-2 tracking-widest">Franja</label>
+            <label class="block text-xs font-black uppercase text-slate-400 mb-2 tracking-widest" data-i18n="timeSlot">Franja</label>
             <select id="filter-hour" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-bold">
-              <option value="all">Todas</option>
+              <option value="all" data-i18n="allSlots">Todas</option>
               <option value="10:00-11:00">10:00-11:00</option>
               <option value="11:00-12:00">11:00-12:00</option>
               <option value="12:00-13:00">12:00-13:00</option>
@@ -218,8 +264,8 @@
           </div>
 
           <div class="grid grid-cols-2 gap-3 pt-2">
-            <button onclick="closeFilters()" class="px-6 py-3 bg-slate-100 font-bold rounded-xl hover:bg-slate-200">Cerrar</button>
-            <button onclick="applyFilters()" class="px-6 py-3 btn-primary text-white font-bold rounded-xl transition-all">Aplicar</button>
+            <button onclick="closeFilters()" class="px-6 py-3 bg-slate-100 font-bold rounded-xl hover:bg-slate-200" data-i18n="close">Cerrar</button>
+            <button onclick="applyFilters()" class="px-6 py-3 btn-primary text-white font-bold rounded-xl transition-all" data-i18n="apply">Aplicar</button>
           </div>
         </div>
       </div>
@@ -227,6 +273,7 @@
   </div>
 
   <!-- JavaScript Files -->
+  <script src="js/i18n.js"></script>
   <script src="js/constants.js"></script>
   <script src="js/utils.js"></script>
   <script src="js/api.js"></script>
