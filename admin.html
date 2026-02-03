@@ -36,7 +36,11 @@
       border-color: #cbd5e1;
     }
     .lang-flag {
-      font-size: 1rem;
+      width: 20px;
+      height: 15px;
+      border-radius: 2px;
+      overflow: hidden;
+      flex-shrink: 0;
     }
     .lang-text {
       font-weight: 700;
@@ -45,6 +49,14 @@
     }
     .lang-text-inactive {
       color: #94a3b8;
+    }
+    /* Spanish flag */
+    .flag-es {
+      background: linear-gradient(to bottom, #c60b1e 0%, #c60b1e 25%, #ffc400 25%, #ffc400 75%, #c60b1e 75%, #c60b1e 100%);
+    }
+    /* German flag */
+    .flag-de {
+      background: linear-gradient(to bottom, #000 0%, #000 33.33%, #dd0000 33.33%, #dd0000 66.66%, #ffcc00 66.66%, #ffcc00 100%);
     }
   </style>
 </head>
@@ -59,10 +71,10 @@
           <span class="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider" data-i18n="internalManagement">Gestión Interna</span>
           <!-- Language Switcher -->
           <button onclick="toggleLanguage()" class="lang-switcher ml-2">
-            <span class="lang-flag">🇪🇸</span>
+            <span class="lang-flag flag-es" id="lang-flag"></span>
             <span class="lang-text" id="lang-btn-text">ES</span>
             <span class="text-slate-300">|</span>
-            <span class="lang-flag">🇩🇪</span>
+            <span class="lang-flag flag-de" id="lang-flag-alt"></span>
             <span class="lang-text lang-text-inactive" id="lang-btn-text-alt">DE</span>
           </button>
         </div>

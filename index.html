@@ -38,12 +38,24 @@
       background: rgba(255,255,255,0.2);
     }
     .lang-flag {
-      font-size: 1rem;
+      width: 20px;
+      height: 15px;
+      border-radius: 2px;
+      overflow: hidden;
+      flex-shrink: 0;
     }
     .lang-text {
       font-weight: 700;
       font-size: 0.75rem;
       color: white;
+    }
+    /* Spanish flag */
+    .flag-es {
+      background: linear-gradient(to bottom, #c60b1e 0%, #c60b1e 25%, #ffc400 25%, #ffc400 75%, #c60b1e 75%, #c60b1e 100%);
+    }
+    /* German flag */
+    .flag-de {
+      background: linear-gradient(to bottom, #000 0%, #000 33.33%, #dd0000 33.33%, #dd0000 66.66%, #ffcc00 66.66%, #ffcc00 100%);
     }
   </style>
 </head>
@@ -66,10 +78,10 @@
         <!-- Language switcher in login -->
         <div class="flex justify-end p-4 pb-0">
           <button onclick="toggleLanguage()" class="flex items-center gap-2 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors">
-            <span id="login-lang-flag">🇪🇸</span>
+            <span class="lang-flag flag-es" id="login-lang-flag"></span>
             <span class="text-xs font-bold text-slate-600" id="login-lang-text">ES</span>
             <span class="text-slate-400">|</span>
-            <span>🇩🇪</span>
+            <span class="lang-flag flag-de"></span>
             <span class="text-xs font-bold text-slate-400">DE</span>
           </button>
         </div>
@@ -146,10 +158,10 @@
         <!-- Language Switcher -->
         <button onclick="toggleLanguage()" id="lang-switcher"
           class="mb-6 lang-switcher w-full justify-center">
-          <span class="lang-flag" id="lang-flag">🇪🇸</span>
+          <span class="lang-flag flag-es" id="lang-flag"></span>
           <span class="lang-text" id="lang-btn-text">ES</span>
           <span class="text-white/60 text-xs">|</span>
-          <span class="lang-flag" id="lang-flag-alt">🇩🇪</span>
+          <span class="lang-flag flag-de" id="lang-flag-alt"></span>
           <span class="text-white/60 lang-text" id="lang-btn-text-alt">DE</span>
         </button>
 

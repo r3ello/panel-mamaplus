@@ -403,20 +403,22 @@ function setLanguage(lang) {
 
   if (langBtnText) {
     langBtnText.textContent = lang === 'es' ? 'ES' : 'DE';
-    langBtnText.classList.toggle('text-white', true);
-    langBtnText.classList.toggle('text-white/60', false);
   }
   if (langBtnTextAlt) {
     langBtnTextAlt.textContent = lang === 'es' ? 'DE' : 'ES';
   }
+  // Update CSS flag classes
   if (langFlag) {
-    langFlag.textContent = lang === 'es' ? '🇪🇸' : '🇩🇪';
+    langFlag.classList.remove('flag-es', 'flag-de');
+    langFlag.classList.add(lang === 'es' ? 'flag-es' : 'flag-de');
   }
   if (langFlagAlt) {
-    langFlagAlt.textContent = lang === 'es' ? '🇩🇪' : '🇪🇸';
+    langFlagAlt.classList.remove('flag-es', 'flag-de');
+    langFlagAlt.classList.add(lang === 'es' ? 'flag-de' : 'flag-es');
   }
   if (loginLangFlag) {
-    loginLangFlag.textContent = lang === 'es' ? '🇪🇸' : '🇩🇪';
+    loginLangFlag.classList.remove('flag-es', 'flag-de');
+    loginLangFlag.classList.add(lang === 'es' ? 'flag-es' : 'flag-de');
   }
   if (loginLangText) {
     loginLangText.textContent = lang === 'es' ? 'ES' : 'DE';
