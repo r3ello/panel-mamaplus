@@ -152,6 +152,22 @@ const translations = {
     noTitular: "— Sin titular",
     missingAdminToken: "Falta token admin. Usa el enlace proporcionado.",
 
+    // Admin Actions
+    adminActions: "Acciones de Admin",
+    cancelShift: "Cancelar",
+    changeCaregiver: "Cambiar",
+    promoteSubstitute: "Promover",
+    selectCaregiver: "Seleccionar Cuidadora",
+    caregiverEmail: "Email de la cuidadora",
+    assign: "Asignar",
+    enterEmail: "Por favor ingresa un email",
+    confirmCancelShift: "¿Cancelar este turno y dejarlo disponible?",
+    confirmAssignCaregiver: "¿Asignar a",
+    confirmPromoteSubstitute: "¿Promover la primera suplente a titular?",
+    shiftReleasedSuccess: "✅ Turno liberado correctamente",
+    caregiverAssignedSuccess: "✅ Cuidadora asignada correctamente",
+    substitutePromotedSuccess: "✅ Suplente promovida a titular",
+
     // Language
     language: "Idioma",
     spanish: "Español",
@@ -301,6 +317,22 @@ const translations = {
     substitutesShort: "Vertr.",
     noTitular: "— Kein Titular",
     missingAdminToken: "Admin-Token fehlt. Benutze den bereitgestellten Link.",
+
+    // Admin Actions
+    adminActions: "Admin-Aktionen",
+    cancelShift: "Stornieren",
+    changeCaregiver: "Ändern",
+    promoteSubstitute: "Befördern",
+    selectCaregiver: "Betreuerin auswählen",
+    caregiverEmail: "E-Mail der Betreuerin",
+    assign: "Zuweisen",
+    enterEmail: "Bitte E-Mail eingeben",
+    confirmCancelShift: "Diese Schicht stornieren und freigeben?",
+    confirmAssignCaregiver: "Zuweisen an",
+    confirmPromoteSubstitute: "Erste Vertretung zur Titularin befördern?",
+    shiftReleasedSuccess: "✅ Schicht erfolgreich freigegeben",
+    caregiverAssignedSuccess: "✅ Betreuerin erfolgreich zugewiesen",
+    substitutePromotedSuccess: "✅ Vertretung zur Titularin befördert",
 
     // Language
     language: "Sprache",

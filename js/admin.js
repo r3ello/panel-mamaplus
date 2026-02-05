@@ -7,7 +7,7 @@
 // STATE
 // ========================================
 
-let ADMIN_TOKEN = '';
+let ADMIN_TOKEN = 'mlzsieqg2xqup7dnqxgyk5jo-5766539936-ml68f7ix';
 let weekStart = startOfWeekMonday(new Date());
 let slots = [];
 
@@ -135,7 +135,11 @@ function render(filteredList = null) {
 // MODAL
 // ========================================
 
+let currentSlot = null; // Store current slot for admin actions
+
 function openModal(row) {
+  currentSlot = row; // Save for admin actions
+
   const d = new Date(row.fecha + "T00:00:00");
   document.getElementById('m-title').textContent = `${fmtLong.format(d)} - ${row.hora_inicio}-${row.hora_fin}`;
   document.getElementById('m-titular').textContent = row.titular_nombre || t('noAssignedCaregiver');
@@ -143,6 +147,16 @@ function openModal(row) {
 
   const suplentesNames = row.suplentes_count > 0 ? row.suplentes_nombres : t('noSubstitutesAssigned');
   document.getElementById('m-suplentes').textContent = suplentesNames;
+
+  // Update admin button states
+  const btnCancelar = document.getElementById('btn-cancelar');
+  const btnPromover = document.getElementById('btn-promover');
+
+  // Disable cancel if no titular
+  btnCancelar.disabled = !row.titular_email;
+
+  // Disable promote if no substitutes
+  btnPromover.disabled = row.suplentes_count === 0;
 
   const m = document.getElementById('modal');
   m.classList.remove('hidden');
@@ -153,6 +167,41 @@ function closeModal() {
   const m = document.getElementById('modal');
   m.classList.add('hidden');
   m.classList.remove('flex');
+}
+
+// ========================================
+// MODAL ASIGNAR CUIDADORA
+// ========================================
+
+function mostrarModalAsignar() {
+  if (!currentSlot) return;
+
+  const d = new Date(currentSlot.fecha + "T00:00:00");
+  document.getElementById('asignar-turno-info').textContent =
+    `${fmtLong.format(d)} - ${currentSlot.hora_inicio}-${currentSlot.hora_fin}`;
+  document.getElementById('input-cuidadora-email').value = '';
+
+  const m = document.getElementById('modalAsignar');
+  m.classList.remove('hidden');
+  m.classList.add('flex');
+}
+
+function cerrarModalAsignar() {
+  const m = document.getElementById('modalAsignar');
+  m.classList.add('hidden');
+  m.classList.remove('flex');
+}
+
+function confirmarAsignacion() {
+  const email = document.getElementById('input-cuidadora-email').value.trim();
+  if (!email) {
+    alert(t('enterEmail') || 'Por favor ingresa un email');
+    return;
+  }
+  if (!currentSlot) return;
+
+  asignarCuidadora(currentSlot.fecha, currentSlot.hora_inicio, currentSlot.hora_fin, email);
+  cerrarModalAsignar();
 }
 
 // ========================================
@@ -226,6 +275,23 @@ function initEventHandlers() {
     weekStart = addDays(weekStart, 7);
     load();
   };
+
+  // Admin action buttons
+  document.getElementById('btn-cancelar').onclick = () => {
+    if (currentSlot) {
+      liberarTurno(currentSlot.fecha, currentSlot.hora_inicio, currentSlot.hora_fin);
+    }
+  };
+  document.getElementById('btn-cambiar').onclick = mostrarModalAsignar;
+  document.getElementById('btn-promover').onclick = () => {
+    if (currentSlot) {
+      promoverSuplente(currentSlot.fecha, currentSlot.hora_inicio, currentSlot.hora_fin);
+    }
+  };
+
+  // Modal asignar cuidadora
+  document.getElementById('btn-confirmar-asignacion').onclick = confirmarAsignacion;
+  document.getElementById('btn-cancelar-asignacion').onclick = cerrarModalAsignar;
 }
 
 // ========================================
@@ -257,6 +323,97 @@ function updateAdminSelectOptions() {
       const key = opt.getAttribute('data-i18n');
       if (key) opt.textContent = t(key);
     });
+  }
+}
+
+async function liberarTurno(fecha, horaInicio, horaFin) {
+  if (!confirm(t('confirmCancelShift') || '¿Cancelar este turno y dejarlo disponible?')) return;
+
+  try {
+    const response = await fetch(API_ADMIN_TURNO, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        admin_token: ADMIN_TOKEN,
+        fecha: fecha,
+        hora_inicio: horaInicio,
+        hora_fin: horaFin,
+        accion: 'liberar'
+      })
+    });
+
+    const result = await response.json();
+    if (result.ok) {
+      alert(t('shiftReleasedSuccess') || '✅ Turno liberado correctamente');
+      closeModal();
+      load();
+    } else {
+      alert('❌ Error: ' + (result.error || result.message || 'No se pudo liberar'));
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    alert('❌ Error de conexión');
+  }
+}
+
+async function asignarCuidadora(fecha, horaInicio, horaFin, emailCuidadora) {
+  if (!confirm(`${t('confirmAssignCaregiver') || '¿Asignar a'} ${emailCuidadora}?`)) return;
+
+  try {
+    const response = await fetch(API_ADMIN_TURNO, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        admin_token: ADMIN_TOKEN,
+        fecha: fecha,
+        hora_inicio: horaInicio,
+        hora_fin: horaFin,
+        accion: 'asignar',
+        cuidadora_email: emailCuidadora
+      })
+    });
+
+    const result = await response.json();
+    if (result.ok) {
+      alert(t('caregiverAssignedSuccess') || '✅ Cuidadora asignada correctamente');
+      closeModal();
+      load();
+    } else {
+      alert('❌ Error: ' + (result.error || result.message || 'No se pudo asignar'));
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    alert('❌ Error de conexión');
+  }
+}
+
+async function promoverSuplente(fecha, horaInicio, horaFin) {
+  if (!confirm(t('confirmPromoteSubstitute') || '¿Promover la primera suplente a titular?')) return;
+
+  try {
+    const response = await fetch(API_ADMIN_TURNO, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        admin_token: ADMIN_TOKEN,
+        fecha: fecha,
+        hora_inicio: horaInicio,
+        hora_fin: horaFin,
+        accion: 'promover'
+      })
+    });
+
+    const result = await response.json();
+    if (result.ok) {
+      alert(t('substitutePromotedSuccess') || '✅ Suplente promovida a titular');
+      closeModal();
+      load();
+    } else {
+      alert('❌ Error: ' + (result.error || result.message || 'No se pudo promover'));
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    alert('❌ Error de conexión');
   }
 }
 

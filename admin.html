@@ -174,8 +174,53 @@
           </div>
         </div>
 
+        <!-- Admin Action Buttons -->
+        <div class="admin-actions space-y-2">
+          <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5 ml-1" data-i18n="adminActions">Acciones de Admin</p>
+          <div class="grid grid-cols-3 gap-2">
+            <button id="btn-cancelar" class="btn-admin btn-cancelar flex flex-col items-center gap-1 p-3 rounded-xl">
+              <span class="text-lg">❌</span>
+              <span class="text-[10px] font-bold" data-i18n="cancelShift">Cancelar</span>
+            </button>
+            <button id="btn-cambiar" class="btn-admin btn-cambiar flex flex-col items-center gap-1 p-3 rounded-xl">
+              <span class="text-lg">✏️</span>
+              <span class="text-[10px] font-bold" data-i18n="changeCaregiver">Cambiar</span>
+            </button>
+            <button id="btn-promover" class="btn-admin btn-promover flex flex-col items-center gap-1 p-3 rounded-xl">
+              <span class="text-lg">⬆️</span>
+              <span class="text-[10px] font-bold" data-i18n="promoteSubstitute">Promover</span>
+            </button>
+          </div>
+        </div>
+
         <div class="pt-4">
           <button id="m-close" class="w-full px-5 py-4 rounded-2xl bg-slate-900 text-white font-bold hover:bg-slate-800 transition-colors shadow-lg" data-i18n="closeDetail">Cerrar Detalle</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para Asignar Cuidadora -->
+  <div id="modalAsignar" class="fixed inset-0 bg-slate-900/40 backdrop-blur-[2px] hidden items-center justify-center p-4 z-[110]">
+    <div class="bg-white w-full max-w-sm rounded-[2rem] overflow-hidden shadow-2xl border border-slate-100">
+      <div class="p-6 bg-gradient-to-r from-blue-500 to-blue-600 text-white">
+        <h3 class="text-xl font-extrabold" data-i18n="selectCaregiver">Seleccionar Cuidadora</h3>
+        <p class="text-blue-100 text-sm mt-1" id="asignar-turno-info">—</p>
+      </div>
+      <div class="p-6 space-y-4">
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2" data-i18n="caregiverEmail">Email de la cuidadora</label>
+          <input id="input-cuidadora-email" type="email"
+                 class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                 placeholder="cuidadora@email.com" />
+        </div>
+        <div class="flex gap-2 pt-2">
+          <button id="btn-confirmar-asignacion" class="flex-1 px-4 py-3 rounded-xl bg-blue-500 text-white font-bold hover:bg-blue-600 transition-colors">
+            <span data-i18n="assign">Asignar</span>
+          </button>
+          <button id="btn-cancelar-asignacion" class="flex-1 px-4 py-3 rounded-xl bg-slate-200 text-slate-700 font-bold hover:bg-slate-300 transition-colors">
+            <span data-i18n="cancel">Cancelar</span>
+          </button>
         </div>
       </div>
     </div>
