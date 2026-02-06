@@ -10,6 +10,7 @@
 let ADMIN_TOKEN = '';
 let weekStart = startOfWeekMonday(new Date());
 let slots = [];
+let cuidadorasList = []; // Lista de cuidadoras para el selector
 
 // ========================================
 // INITIALIZATION
@@ -167,8 +168,14 @@ function openModal(row) {
     btnCerrarTexto.textContent = 'Cerrar turno (bloquear)';
   }
 
-  // Pre-rellenar email si acabamos de liberar un turno
-  document.getElementById('input-email').value = lastLiberatedEmail || '';
+  // Poblar selector de cuidadoras
+  const selectEl = document.getElementById('select-cuidadora');
+  selectEl.innerHTML = '<option value="">Seleccionar cuidadora...</option>' +
+    cuidadorasList.map(c =>
+      `<option value="${c.email}">${c.nombre} (${c.email})</option>`
+    ).join('');
+  // Pre-seleccionar email si acabamos de liberar un turno
+  selectEl.value = lastLiberatedEmail || '';
   const msg = document.getElementById('m-action-msg');
   msg.classList.add('hidden');
 
@@ -209,9 +216,9 @@ async function adminAction(accion) {
   }
 
   if (accion === 'asignar') {
-    const email = document.getElementById('input-email').value.trim();
+    const email = document.getElementById('select-cuidadora').value;
     if (!email) {
-      showActionMsg('Escribe el email de la cuidadora', 'text-red-500');
+      showActionMsg('Selecciona una cuidadora de la lista', 'text-red-500');
       return;
     }
     body.cuidadora_email = email;
@@ -222,11 +229,17 @@ async function adminAction(accion) {
   showActionMsg('Procesando...', 'text-slate-500');
 
   try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 15000);
+
     const r = await fetch(API_ADMIN_TURNO, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body)
+      body: JSON.stringify(body),
+      signal: controller.signal
     });
+    clearTimeout(timeoutId);
+
     const data = await r.json();
 
     if (data.ok) {
@@ -240,7 +253,11 @@ async function adminAction(accion) {
     }
   } catch (e) {
     console.error('Error admin action:', e);
-    showActionMsg('Error de conexión', 'text-red-500');
+    if (e.name === 'AbortError') {
+      showActionMsg('Timeout: el servidor tardó demasiado. Revisa el workflow de n8n.', 'text-red-500');
+    } else {
+      showActionMsg('Error de conexión con el servidor', 'text-red-500');
+    }
   }
 }
 
@@ -334,6 +351,7 @@ async function loadHorasCuidadoras() {
     }
 
     const cuidadoras = data.cuidadoras || [];
+    cuidadorasList = cuidadoras; // Guardar para el selector del modal
 
     if (cuidadoras.length === 0) {
       tbody.innerHTML = `
