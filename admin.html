@@ -162,7 +162,41 @@
           </div>
         </div>
 
-        <div class="pt-4">
+        <!-- Acciones Admin -->
+        <div id="m-actions" class="space-y-2.5">
+          <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5 ml-1">Acciones de Admin</p>
+
+          <button id="btn-liberar" onclick="adminAction('liberar')"
+            class="w-full px-4 py-3 rounded-2xl bg-red-50 text-red-700 border border-red-200 font-bold text-sm hover:bg-red-100 transition-colors flex items-center gap-3">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+            Liberar turno (quitar titular)
+          </button>
+
+          <button id="btn-promover" onclick="adminAction('promover')"
+            class="w-full px-4 py-3 rounded-2xl bg-indigo-50 text-indigo-700 border border-indigo-200 font-bold text-sm hover:bg-indigo-100 transition-colors flex items-center gap-3">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg>
+            Promover suplente a titular
+          </button>
+
+          <div class="flex gap-2">
+            <input id="input-email" type="email" placeholder="email@cuidadora.com"
+              class="flex-1 px-4 py-3 rounded-2xl border border-slate-200 text-sm font-medium focus:outline-none focus:border-emerald-500" />
+            <button onclick="adminAction('asignar')"
+              class="px-4 py-3 rounded-2xl bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold text-sm hover:bg-emerald-100 transition-colors whitespace-nowrap">
+              Asignar
+            </button>
+          </div>
+
+          <button id="btn-cerrar-turno" onclick="adminToggleEstado()"
+            class="w-full px-4 py-3 rounded-2xl bg-slate-100 text-slate-600 border border-slate-200 font-bold text-sm hover:bg-slate-200 transition-colors flex items-center gap-3">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <span id="btn-cerrar-texto">Cerrar turno</span>
+          </button>
+
+          <p id="m-action-msg" class="text-center text-sm font-semibold hidden"></p>
+        </div>
+
+        <div class="pt-2">
           <button id="m-close" class="w-full px-5 py-4 rounded-2xl bg-slate-900 text-white font-bold hover:bg-slate-800 transition-colors shadow-lg">Cerrar Detalle</button>
         </div>
       </div>
