@@ -138,14 +138,39 @@ function render(filteredList = null) {
 // MODAL
 // ========================================
 
+let currentModalRow = null;
+let lastLiberatedEmail = '';
+
 function openModal(row) {
-  const d = new Date(row.fecha + "T00:00:00");
-  document.getElementById('m-title').textContent = `${fmtLong.format(d)} - ${row.hora_inicio}-${row.hora_fin}`;
+  currentModalRow = row;
+
+  const fechaNorm = row.fecha.split('T')[0];
+  const d = new Date(fechaNorm + "T00:00:00");
+  document.getElementById('m-title').textContent = `${fmtLong.format(d)} - ${row.hora_inicio.substring(0,5)}-${row.hora_fin.substring(0,5)}`;
   document.getElementById('m-titular').textContent = row.titular_nombre || "Sin cuidadora asignada";
   document.getElementById('m-titular-sub').textContent = row.titular_email || "No hay correo registrado";
 
   const suplentesNames = row.suplentes_count > 0 ? row.suplentes_nombres : "No hay suplentes asignados para este turno.";
   document.getElementById('m-suplentes').textContent = suplentesNames;
+
+  // Mostrar/ocultar botones según estado
+  const btnLiberar = document.getElementById('btn-liberar');
+  const btnPromover = document.getElementById('btn-promover');
+  btnLiberar.style.display = row.estado_slot === 'ocupado' ? 'flex' : 'none';
+  btnPromover.style.display = (row.suplentes_count > 0) ? 'flex' : 'none';
+
+  // Texto del botón cerrar/abrir
+  const btnCerrarTexto = document.getElementById('btn-cerrar-texto');
+  if (row.estado_slot === 'cerrado') {
+    btnCerrarTexto.textContent = 'Abrir turno';
+  } else {
+    btnCerrarTexto.textContent = 'Cerrar turno (bloquear)';
+  }
+
+  // Pre-rellenar email si acabamos de liberar un turno
+  document.getElementById('input-email').value = lastLiberatedEmail || '';
+  const msg = document.getElementById('m-action-msg');
+  msg.classList.add('hidden');
 
   const m = document.getElementById('modal');
   m.classList.remove('hidden');
@@ -153,9 +178,117 @@ function openModal(row) {
 }
 
 function closeModal() {
+  currentModalRow = null;
   const m = document.getElementById('modal');
   m.classList.add('hidden');
   m.classList.remove('flex');
+}
+
+// ========================================
+// ADMIN ACTIONS
+// ========================================
+
+async function adminAction(accion) {
+  if (!currentModalRow) return;
+
+  const fechaNorm = currentModalRow.fecha.split('T')[0];
+  const horaIni = currentModalRow.hora_inicio.substring(0, 5);
+  const horaFin = currentModalRow.hora_fin.substring(0, 5);
+
+  const body = {
+    admin_token: ADMIN_TOKEN,
+    fecha: fechaNorm,
+    hora_inicio: horaIni,
+    hora_fin: horaFin,
+    accion: accion
+  };
+
+  // Guardar email antes de liberar para auto-completar después
+  if (accion === 'liberar' && currentModalRow.titular_email) {
+    lastLiberatedEmail = currentModalRow.titular_email;
+  }
+
+  if (accion === 'asignar') {
+    const email = document.getElementById('input-email').value.trim();
+    if (!email) {
+      showActionMsg('Escribe el email de la cuidadora', 'text-red-500');
+      return;
+    }
+    body.cuidadora_email = email;
+    // Limpiar el email guardado después de asignar
+    lastLiberatedEmail = '';
+  }
+
+  showActionMsg('Procesando...', 'text-slate-500');
+
+  try {
+    const r = await fetch(API_ADMIN_TURNO, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    const data = await r.json();
+
+    if (data.ok) {
+      showActionMsg(data.mensaje || 'Operación realizada', 'text-emerald-600');
+      setTimeout(() => {
+        closeModal();
+        load();
+      }, 1200);
+    } else {
+      showActionMsg(data.error || 'Error en la operación', 'text-red-500');
+    }
+  } catch (e) {
+    console.error('Error admin action:', e);
+    showActionMsg('Error de conexión', 'text-red-500');
+  }
+}
+
+async function adminToggleEstado() {
+  if (!currentModalRow) return;
+
+  const fechaNorm = currentModalRow.fecha.split('T')[0];
+  const horaIni = currentModalRow.hora_inicio.substring(0, 5);
+  const horaFin = currentModalRow.hora_fin.substring(0, 5);
+  const nuevoEstado = currentModalRow.estado_slot === 'cerrado' ? 'abierto' : 'cerrado';
+
+  showActionMsg('Procesando...', 'text-slate-500');
+
+  try {
+    const r = await fetch(API_ADMIN_TURNO, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        admin_token: ADMIN_TOKEN,
+        fecha: fechaNorm,
+        hora_inicio: horaIni,
+        hora_fin: horaFin,
+        accion: 'cambiar_estado',
+        nuevo_estado: nuevoEstado
+      })
+    });
+    const data = await r.json();
+
+    if (data.ok) {
+      showActionMsg(nuevoEstado === 'cerrado' ? 'Turno cerrado' : 'Turno abierto', 'text-emerald-600');
+      setTimeout(() => {
+        closeModal();
+        load();
+      }, 1200);
+    } else {
+      showActionMsg(data.error || 'Error', 'text-red-500');
+    }
+  } catch (e) {
+    console.error('Error toggle estado:', e);
+    showActionMsg('Error de conexión', 'text-red-500');
+  }
+}
+
+function showActionMsg(text, colorClass) {
+  const msg = document.getElementById('m-action-msg');
+  msg.textContent = text;
+  msg.className = `text-center text-sm font-semibold ${colorClass}`;
+  msg.classList.remove('hidden');
 }
 
 // ========================================
