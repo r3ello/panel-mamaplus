@@ -10,6 +10,8 @@ const API_TURNOS = `${API_BASE}/webhook/api/turnos`;
 const API_GUARDAR = `${API_BASE}/webhook/api/turno`;
 const API_ADMIN_SLOTS = `${API_BASE}/webhook/api/admin/slots`;
 const API_ADMIN_TURNO =  `${API_BASE}/webhook/api/admin/turno`;
+const API_HORAS = `${API_BASE}/webhook/api/horas`;
+const API_ADMIN_HORAS = `${API_BASE}/webhook/api/admin/horas`;
 
 // Time slots
 const HORAS = [

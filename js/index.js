@@ -39,7 +39,7 @@ function logout() {
   localStorage.removeItem('panel_token');
   panelToken = null;
   currentUser = null;
-  showLogin(true, t('sessionClosed'));
+  showLogin(true, "Has cerrado sesión. Introduce tu token para entrar.");
 }
 
 // ========================================
@@ -77,8 +77,7 @@ function initSidebar() {
 // ========================================
 
 function buildDayHeadersHTML() {
-  const days = getLocalizedDays();
-  return days.map((name, i) => {
+  return DIAS.map((name, i) => {
     const d = addDays(currentWeekStart, i);
     const isWeekend = i >= 5;
     return `
@@ -158,18 +157,18 @@ async function renderDashboard() {
   main.innerHTML = `
     <header class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-10">
       <div>
-        <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight">${t('controlPanel')}</h2>
-        <p class="text-slate-600 font-medium mt-1">${t('helloManageShifts', { name: currentUser?.nombre || '' })}</p>
+        <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight">Panel de Control</h2>
+        <p class="text-slate-600 font-medium mt-1">Hola ${currentUser?.nombre || ''}, administra tus turnos por semana.</p>
       </div>
       <div class="flex items-center gap-3">
         <button onclick="exportToExcel()" class="btn-primary text-white px-6 py-2.5 rounded-xl flex items-center gap-2 font-bold transition-all">
-          <i data-lucide="download" class="w-4 h-4"></i> ${t('exportShifts')}
+          <i data-lucide="download" class="w-4 h-4"></i> Exportar Turnos
         </button>
       </div>
     </header>
 
     <!-- STAT CARDS -->
-    <section class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+    <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
       <div class="stat-card stat-shell relative overflow-hidden rounded-3xl p-6">
         <div class="absolute inset-0 bg-gradient-to-br from-emerald-50 via-white to-white"></div>
         <div class="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-emerald-200/30 blur-2xl"></div>
@@ -179,12 +178,12 @@ async function renderDashboard() {
               <i data-lucide="calendar-check" class="w-6 h-6"></i>
             </div>
             <div>
-              <p class="text-xs font-black uppercase tracking-widest text-slate-500">${t('assigned')}</p>
+              <p class="text-xs font-black uppercase tracking-widest text-slate-500">Asignados</p>
               <p id="card-asignados" class="text-3xl font-extrabold text-slate-900 leading-tight">—</p>
-              <p class="text-sm text-slate-500 -mt-0.5">${t('thisWeek')}</p>
+              <p class="text-sm text-slate-500 -mt-0.5">esta semana</p>
             </div>
           </div>
-          <span class="relative text-[11px] font-black uppercase tracking-widest text-emerald-900 bg-emerald-100/70 border border-emerald-200 rounded-full px-3 py-1">${t('week')}</span>
+          <span class="relative text-[11px] font-black uppercase tracking-widest text-emerald-900 bg-emerald-100/70 border border-emerald-200 rounded-full px-3 py-1">Semana</span>
         </div>
         <div class="relative mt-5 h-1.5 w-full rounded-full bg-emerald-100 overflow-hidden">
           <div id="bar-asignados" class="h-full w-1/3 bg-emerald-600/70 rounded-full"></div>
@@ -200,9 +199,9 @@ async function renderDashboard() {
               <i data-lucide="calendar-x" class="w-6 h-6"></i>
             </div>
             <div>
-              <p class="text-xs font-black uppercase tracking-widest text-slate-500">${t('cancelled')}</p>
+              <p class="text-xs font-black uppercase tracking-widest text-slate-500">Cancelados</p>
               <p id="card-cancelados" class="text-3xl font-extrabold text-slate-900 leading-tight">—</p>
-              <p class="text-sm text-slate-500 -mt-0.5">${t('thisWeek')}</p>
+              <p class="text-sm text-slate-500 -mt-0.5">esta semana</p>
             </div>
           </div>
           <span class="relative text-[11px] font-black uppercase tracking-widest text-rose-900 bg-rose-100/70 border border-rose-200 rounded-full px-3 py-1">Control</span>
@@ -221,15 +220,36 @@ async function renderDashboard() {
               <i data-lucide="user-plus" class="w-6 h-6"></i>
             </div>
             <div>
-              <p class="text-xs font-black uppercase tracking-widest text-slate-500">${t('substitutionsCount')}</p>
+              <p class="text-xs font-black uppercase tracking-widest text-slate-500">Suplencias</p>
               <p id="card-suplencias" class="text-3xl font-extrabold text-slate-900 leading-tight">—</p>
-              <p class="text-sm text-slate-500 -mt-0.5">${t('thisWeek')}</p>
+              <p class="text-sm text-slate-500 -mt-0.5">esta semana</p>
             </div>
           </div>
           <span class="relative text-[11px] font-black uppercase tracking-widest text-amber-900 bg-amber-100/70 border border-amber-200 rounded-full px-3 py-1">Extra</span>
         </div>
         <div class="relative mt-5 h-1.5 w-full rounded-full bg-amber-100 overflow-hidden">
           <div id="bar-suplencias" class="h-full w-1/4 bg-amber-600/70 rounded-full"></div>
+        </div>
+      </div>
+
+      <div class="stat-card stat-shell relative overflow-hidden rounded-3xl p-6">
+        <div class="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-white"></div>
+        <div class="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-blue-200/30 blur-2xl"></div>
+        <div class="relative flex items-start justify-between gap-4">
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-2xl bg-blue-100 text-blue-900 flex items-center justify-center border border-blue-200">
+              <i data-lucide="clock" class="w-6 h-6"></i>
+            </div>
+            <div>
+              <p class="text-xs font-black uppercase tracking-widest text-slate-500">Horas</p>
+              <p id="card-horas" class="text-3xl font-extrabold text-slate-900 leading-tight">—</p>
+              <p class="text-sm text-slate-500 -mt-0.5">trabajadas</p>
+            </div>
+          </div>
+          <span class="relative text-[11px] font-black uppercase tracking-widest text-blue-900 bg-blue-100/70 border border-blue-200 rounded-full px-3 py-1">Total</span>
+        </div>
+        <div class="relative mt-5 h-1.5 w-full rounded-full bg-blue-100 overflow-hidden">
+          <div id="bar-horas" class="h-full w-1/4 bg-blue-600/70 rounded-full"></div>
         </div>
       </div>
     </section>
@@ -241,7 +261,7 @@ async function renderDashboard() {
             <i data-lucide="chevron-left" class="w-5 h-5"></i>
           </button>
           <div class="text-center">
-            <h3 class="text-lg font-black text-slate-900 leading-tight">${t('week')}</h3>
+            <h3 class="text-lg font-black text-slate-900 leading-tight">Semana</h3>
             <p id="week-label" class="text-sm font-bold text-slate-700">${formatWeekRange(currentWeekStart)}</p>
           </div>
           <button id="next-week" class="p-2 hover:bg-orange-200/20 rounded-lg transition-colors text-orange-600" aria-label="Semana siguiente">
@@ -250,9 +270,9 @@ async function renderDashboard() {
         </div>
         <div class="relative">
           <select id="week-select" class="appearance-none bg-white/70 border border-orange-200/60 rounded-xl px-5 py-2.5 pr-10 font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-900/30">
-            <option value="current">${t('currentWeek')}</option>
-            <option value="next">${t('nextWeek')}</option>
-            <option value="custom" selected>${t('otherWeek')}</option>
+            <option value="current">Semana actual</option>
+            <option value="next">Próxima semana</option>
+            <option value="custom" selected>Otra semana</option>
           </select>
           <i data-lucide="chevron-down" class="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-orange-600"></i>
         </div>
@@ -262,7 +282,7 @@ async function renderDashboard() {
         <table class="min-w-[900px] border-separate border-spacing-0">
           <thead>
             <tr class="bg-white/50">
-              <th class="sticky left-0 z-20 bg-[#f5eedf] border-b border-r border-orange-200/30 p-4 text-xs uppercase tracking-widest text-slate-500 font-black">${t('schedule')}</th>
+              <th class="sticky left-0 z-20 bg-[#f5eedf] border-b border-r border-orange-200/30 p-4 text-xs uppercase tracking-widest text-slate-500 font-black">Horario</th>
               ${buildDayHeadersHTML()}
             </tr>
           </thead>
@@ -298,8 +318,27 @@ async function renderDashboard() {
     document.getElementById('bar-cancelados').style.width = clamp(cancelados * 12) + '%';
     document.getElementById('bar-suplencias').style.width = clamp(suplencias * 10) + '%';
 
+    // Cargar horas trabajadas y pendientes
+    try {
+      const horasData = await apiHorasTrabajadas();
+      const horasTrabajadas = horasData.horas_trabajadas || 0;
+      const horasPendientes = horasData.horas_pendientes || 0;
+
+      document.getElementById('card-horas').textContent = horasTrabajadas;
+      document.getElementById('bar-horas').style.width = clamp(horasTrabajadas * 2) + '%';
+
+      // Actualizar sidebar con horas pendientes
+      const sidebarHoras = document.getElementById('sidebar-horas-pendientes');
+      if (sidebarHoras) {
+        sidebarHoras.textContent = horasPendientes + 'h';
+      }
+    } catch (err) {
+      console.error('Error cargando horas:', err);
+      document.getElementById('card-horas').textContent = '0';
+    }
+
   } catch (e) {
-    toast(t('couldNotLoadWeek'));
+    toast("No se pudo cargar la semana (API).");
     console.error(e);
   }
 }
@@ -320,15 +359,15 @@ async function renderSuplencias() {
 
   main.innerHTML = `
     <header class="mb-10">
-      <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight">${t('availableSubstitutions')}</h2>
-      <p class="text-slate-600 font-medium mt-1">${t('substitutionsDescription')}</p>
+      <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight">Suplencias Disponibles</h2>
+      <p class="text-slate-600 font-medium mt-1">Turnos ya ocupados donde puedes apuntarte como suplente.</p>
     </header>
 
     <div class="grid grid-cols-1 gap-4 overflow-y-auto pr-2">
       ${candidates.length === 0 ? `
         <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
-          <p class="font-bold text-slate-800">${t('noSubstitutionsAvailable')}</p>
-          <p class="text-slate-600 text-sm mt-1">${t('changeWeekInMyShifts')}</p>
+          <p class="font-bold text-slate-800">No hay suplencias disponibles esta semana.</p>
+          <p class="text-slate-600 text-sm mt-1">Cambia de semana en "Mis Turnos".</p>
         </div>
       ` : candidates.map(s => {
         const hora = `${s.hora_inicio}-${s.hora_fin}`;
@@ -339,13 +378,13 @@ async function renderSuplencias() {
                 <i data-lucide="clock" class="w-6 h-6"></i>
               </div>
               <div>
-                <h4 class="font-extrabold text-slate-900">${t('occupiedShiftSubstituteOption')}</h4>
+                <h4 class="font-extrabold text-slate-900">Turno ocupado - opción suplente</h4>
                 <p class="text-sm text-slate-600">${s.fecha} - ${hora}</p>
               </div>
             </div>
             <div class="flex items-center gap-4">
-              <span class="px-4 py-1.5 bg-amber-50 text-amber-800 text-xs font-bold rounded-full border border-amber-100">${t('available')}</span>
-              <button onclick="postularme('${s.fecha}','${hora}')" class="btn-primary text-white px-6 py-2 rounded-xl font-bold transition-all">${t('applyForPosition')}</button>
+              <span class="px-4 py-1.5 bg-amber-50 text-amber-800 text-xs font-bold rounded-full border border-amber-100">Disponible</span>
+              <button onclick="postularme('${s.fecha}','${hora}')" class="btn-primary text-white px-6 py-2 rounded-xl font-bold transition-all">Postularme</button>
             </div>
           </div>
         `;
@@ -358,10 +397,10 @@ async function renderSuplencias() {
 async function postularme(fecha, horaRango) {
   try {
     await apiGuardarTurno({ fecha, horaRango, accion: 'suplente' }, refreshWeekData);
-    toast(t('signedUpAsSubstitute'));
+    toast("Te has apuntado como suplente");
     renderSuplencias();
   } catch (e) {
-    toast(e.message || t('couldNotApply'));
+    toast(e.message || "No se pudo postular");
     console.error(e);
   }
 }
@@ -382,17 +421,17 @@ async function renderDisponibilidad() {
 
   main.innerHTML = `
     <header class="mb-10">
-      <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight">${t('availabilityTitle')}</h2>
-      <p class="text-slate-600 font-medium mt-1">${t('availabilityDescription')}</p>
+      <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight">Disponibilidad</h2>
+      <p class="text-slate-600 font-medium mt-1">Slots disponibles en la semana actual.</p>
     </header>
 
     <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6">
       <div class="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
         <div>
-          <p class="text-sm font-bold text-slate-900">${t('filters')}</p>
-          <p class="text-slate-600 text-sm mt-1">${t('filterByDayAndTime')}</p>
+          <p class="text-sm font-bold text-slate-900">Filtros</p>
+          <p class="text-slate-600 text-sm mt-1">Filtra por día y franja horaria.</p>
         </div>
-        <button onclick="openFilters()" class="btn-primary text-white px-6 py-2 rounded-xl font-bold transition-all">${t('configureFilters')}</button>
+        <button onclick="openFilters()" class="btn-primary text-white px-6 py-2 rounded-xl font-bold transition-all">Configurar filtros</button>
       </div>
 
       <div class="mt-6" id="disp-list">
@@ -407,7 +446,7 @@ function renderDisponibilidadList(items) {
   if (!items || items.length === 0) {
     return `
       <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200">
-        <p class="font-bold text-slate-800">${t('noSlotsAvailable')}</p>
+        <p class="font-bold text-slate-800">No hay slots disponibles con ese filtro.</p>
       </div>
     `;
   }
@@ -420,9 +459,9 @@ function renderDisponibilidadList(items) {
           <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-between gap-3">
             <div>
               <p class="font-extrabold text-slate-900">${s.fecha} - ${hora}</p>
-              <p class="text-sm text-slate-600">${t('available')}</p>
+              <p class="text-sm text-slate-600">Disponible</p>
             </div>
-            <button onclick="reservarDesdeDisponibilidad('${s.fecha}','${hora}')" class="btn-primary text-white px-5 py-2 rounded-xl font-bold transition-all">${t('take')}</button>
+            <button onclick="reservarDesdeDisponibilidad('${s.fecha}','${hora}')" class="btn-primary text-white px-5 py-2 rounded-xl font-bold transition-all">Tomar</button>
           </div>
         `;
       }).join('')}
@@ -433,10 +472,10 @@ function renderDisponibilidadList(items) {
 async function reservarDesdeDisponibilidad(fecha, horaRango) {
   try {
     await apiGuardarTurno({ fecha, horaRango, accion: 'titular' }, refreshWeekData);
-    toast(t('shiftTakenAsTitular'));
+    toast("Turno tomado como titular");
     renderDisponibilidad();
   } catch (e) {
-    toast(e.message || t('couldNotTakeShift'));
+    toast(e.message || "No se pudo tomar el turno");
     console.error(e);
   }
 }
@@ -470,7 +509,7 @@ function applyFilters() {
   if (target) target.innerHTML = renderDisponibilidadList(list);
 
   closeFilters();
-  toast(t('filterApplied'));
+  toast("Filtro aplicado");
 }
 
 // ========================================
@@ -481,8 +520,8 @@ function renderHistorial() {
   const main = document.getElementById('main-content');
   main.innerHTML = `
     <header class="mb-10">
-      <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight">${t('historyTitle')}</h2>
-      <p class="text-slate-600 font-medium mt-1">${t('pendingConnection')}</p>
+      <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight">Historial</h2>
+      <p class="text-slate-600 font-medium mt-1">Pendiente de conectar a eventos reales.</p>
     </header>
 
     <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6">
@@ -491,8 +530,8 @@ function renderHistorial() {
           <i data-lucide="activity" class="w-6 h-6 text-slate-700"></i>
         </div>
         <div>
-          <p class="font-extrabold text-slate-900">${t('recentActivity')}</p>
-          <p class="text-slate-600 text-sm">${t('canLoadFromDB')}</p>
+          <p class="font-extrabold text-slate-900">Actividad reciente</p>
+          <p class="text-slate-600 text-sm">Más adelante se puede cargar desde BD.</p>
         </div>
       </div>
     </div>
@@ -508,7 +547,6 @@ function fillCalendar() {
   if (!tbody) return;
 
   tbody.innerHTML = '';
-  const statusConfig = getLocalizedStatusConfig();
 
   HORAS.forEach(hora => {
     const row = document.createElement('tr');
@@ -524,7 +562,7 @@ function fillCalendar() {
       const key = `${dateKey}|${hora}`;
 
       const status = slotsMap.get(key) || 'disponible';
-      const cfg = statusConfig[status] || statusConfig.disponible;
+      const cfg = STATUS_CONFIG[status] || STATUS_CONFIG.disponible;
 
       const cell = document.createElement('td');
       cell.className = 'border-b border-orange-200/20 p-2 text-center align-middle';
@@ -591,13 +629,13 @@ async function guardarTurno() {
       }
     );
     cerrarModal();
-    toast(t('saved'));
+    toast("Guardado");
     await refreshWeekData();
     fillCalendar();
   } catch (e) {
-    err.textContent = e.message || t('couldNotSave');
+    err.textContent = e.message || "No se pudo guardar";
     err.classList.remove('hidden');
-    toast(e.message || t('couldNotSave'));
+    toast(e.message || "No se pudo guardar");
     console.error(e);
   }
 }
@@ -608,13 +646,12 @@ async function guardarTurno() {
 
 function exportToExcel() {
   const wb = XLSX.utils.book_new();
-  const daysShort = getLocalizedDaysShort();
-  const statusConfig = getLocalizedStatusConfig();
 
-  const headers = [t('schedule')];
+  const headers = ["Horario"];
   for (let i = 0; i < 7; i++) {
     const d = addDays(currentWeekStart, i);
-    headers.push(`${daysShort[i]} ${fmtShort.format(d).replace('.', '')}`);
+    const name = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'][i];
+    headers.push(`${name} ${fmtShort.format(d).replace('.', '')}`);
   }
   const wsData = [headers];
 
@@ -625,7 +662,7 @@ function exportToExcel() {
       const dateKey = isoDate(d);
       const key = `${dateKey}|${hora}`;
       const st = slotsMap.get(key) || 'disponible';
-      row.push(statusConfig[st]?.texto || t('available'));
+      row.push(STATUS_CONFIG[st]?.texto || 'Disponible');
     }
     wsData.push(row);
   });
@@ -656,27 +693,27 @@ async function initAuth() {
     showLogin(false);
     showTab('dashboard');
   } catch (e) {
-    showLogin(true, e.message || t('invalidToken'));
+    showLogin(true, e.message || "Token inválido");
   }
 }
 
 function initLoginHandlers() {
   document.getElementById('login-submit').addEventListener('click', async () => {
     const val = document.getElementById('token-input').value.trim();
-    if (!val) return showLogin(true, t('pasteTokenToEnter'));
+    if (!val) return showLogin(true, "Pega un token para entrar.");
 
     try {
       currentUser = await apiMe(val);
       panelToken = val;
       localStorage.setItem('panel_token', panelToken);
 
-      document.getElementById('user-name').textContent = currentUser.nombre || t('caregiver');
+      document.getElementById('user-name').textContent = currentUser.nombre || 'Cuidadora';
 
       showLogin(false);
-      toast(t('welcome'));
+      toast("Bienvenida");
       showTab('dashboard');
     } catch (e) {
-      showLogin(true, e.message || t('invalidToken'));
+      showLogin(true, e.message || "Token inválido");
     }
   });
 
@@ -695,46 +732,6 @@ function initApp() {
   initLoginHandlers();
   initAuth();
   lucide.createIcons();
-
-  // Listen for language changes to refresh dynamic content
-  window.addEventListener('languageChanged', () => {
-    // Update select options text
-    updateSelectOptions();
-
-    // Re-render current tab if logged in
-    if (currentUser) {
-      showTab(currentTab);
-    }
-  });
-}
-
-function updateSelectOptions() {
-  // Update shift modal select options
-  const tipoTurno = document.getElementById('tipo-turno');
-  if (tipoTurno) {
-    tipoTurno.querySelectorAll('option').forEach(opt => {
-      const key = opt.getAttribute('data-i18n');
-      if (key) opt.textContent = t(key);
-    });
-  }
-
-  // Update filter-day select options
-  const filterDay = document.getElementById('filter-day');
-  if (filterDay) {
-    filterDay.querySelectorAll('option').forEach(opt => {
-      const key = opt.getAttribute('data-i18n');
-      if (key) opt.textContent = t(key);
-    });
-  }
-
-  // Update filter-hour select options
-  const filterHour = document.getElementById('filter-hour');
-  if (filterHour) {
-    filterHour.querySelectorAll('option[data-i18n]').forEach(opt => {
-      const key = opt.getAttribute('data-i18n');
-      if (key) opt.textContent = t(key);
-    });
-  }
 }
 
 // Start the application when DOM is ready

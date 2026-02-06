@@ -136,3 +136,14 @@ async function apiAdminSlots(token, weekStartISO) {
   if (!r.ok || !data.ok) throw new Error(data.message || "Error cargando slots");
   return data.slots || [];
 }
+/**
+ * Get worked hours for the current user
+ * @returns {Promise<Object>} Object with hours data
+ */
+async function apiHorasTrabajadas() {
+  const url = `${API_HORAS}?token=${encodeURIComponent(panelToken)}`;
+  const r = await fetch(url);
+  const data = await r.json();
+  if (!r.ok || !data.ok) throw new Error(data.message || "Error cargando horas");
+  return data.data || {};
+}
