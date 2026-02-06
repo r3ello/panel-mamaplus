@@ -7,7 +7,7 @@
 // STATE
 // ========================================
 
-let ADMIN_TOKEN = 'mlzsieqg2xqup7dnqxgyk5jo-5766539936-ml68f7ix';
+let ADMIN_TOKEN = '';
 let weekStart = startOfWeekMonday(new Date());
 let slots = [];
 
@@ -31,9 +31,8 @@ function setRange() {
 
 function header() {
   const th = document.getElementById('thead');
-  const days = getLocalizedDays();
-  th.innerHTML = `<th class="sticky-col border-b border-slate-200 p-5 text-[10px] font-bold uppercase tracking-widest text-slate-400">${t('schedule')}</th>` +
-    days.map((n, i) => {
+  th.innerHTML = `<th class="sticky-col border-b border-slate-200 p-5 text-[10px] font-bold uppercase tracking-widest text-slate-400">Horario</th>` +
+    DIAS.map((n, i) => {
       const d = addDays(weekStart, i);
       const isToday = isoDate(new Date()) === isoDate(d);
       return `<th class="border-b border-slate-200 p-5 font-bold ${isToday ? 'bg-emerald-50/50' : ''}">
@@ -68,7 +67,11 @@ function render(filteredList = null) {
 
   const map = new Map();
   for (const s of listToUse) {
-    const key = `${s.fecha}|${s.hora_inicio}-${s.hora_fin}`;
+    // Normalizar fecha (quitar T00:00:00.000Z) y horas (quitar :00 segundos)
+    const fechaNorm = s.fecha.split('T')[0];
+    const horaIniNorm = s.hora_inicio.substring(0, 5);
+    const horaFinNorm = s.hora_fin.substring(0, 5);
+    const key = `${fechaNorm}|${horaIniNorm}-${horaFinNorm}`;
     map.set(key, s);
   }
 
@@ -103,17 +106,17 @@ function render(filteredList = null) {
         div.innerHTML = `
           <div class="flex items-center justify-between gap-1 mb-2">
             <span class="px-1.5 py-0.5 rounded-md ${row.estado_slot === 'libre' ? 'bg-emerald-200/50 text-emerald-800' : 'bg-slate-200/50 text-slate-600'} text-[9px] font-bold uppercase">
-              ${row.estado_slot === 'libre' ? t('free') : t('occupied')}
+              ${row.estado_slot === 'libre' ? "Libre" : "Ocupado"}
             </span>
             ${row.suplentes_count > 0 ? '<span class="text-amber-600"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg></span>' : ''}
           </div>
-          <div class="text-[11px] font-extrabold text-slate-900 truncate">${row.titular_nombre || t('noTitular')}</div>
+          <div class="text-[11px] font-extrabold text-slate-900 truncate">${row.titular_nombre || "— Sin titular"}</div>
           <div class="mt-1.5 flex items-center gap-1.5">
             <div class="flex -space-x-2">
               ${Array.from({ length: Math.min(row.suplentes_count, 3) }).map(() => `<div class="w-4 h-4 rounded-full border border-white bg-slate-300"></div>`).join('')}
             </div>
             <span class="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">
-              ${row.suplentes_count > 0 ? `${row.suplentes_count} ${t('substitutesShort')}` : ""}
+              ${row.suplentes_count > 0 ? `${row.suplentes_count} Supl.` : ""}
             </span>
           </div>
         `;
@@ -122,7 +125,7 @@ function render(filteredList = null) {
         td.appendChild(div);
       } else {
         td.innerHTML = `<div class="w-full h-20 rounded-2xl border border-dashed border-slate-200 flex items-center justify-center">
-          <span class="text-[10px] text-slate-300 font-bold uppercase tracking-widest">${t('empty')}</span>
+          <span class="text-[10px] text-slate-300 font-bold uppercase tracking-widest">Vacío</span>
         </div>`;
       }
       tr.appendChild(td);
@@ -135,28 +138,14 @@ function render(filteredList = null) {
 // MODAL
 // ========================================
 
-let currentSlot = null; // Store current slot for admin actions
-
 function openModal(row) {
-  currentSlot = row; // Save for admin actions
-
   const d = new Date(row.fecha + "T00:00:00");
   document.getElementById('m-title').textContent = `${fmtLong.format(d)} - ${row.hora_inicio}-${row.hora_fin}`;
-  document.getElementById('m-titular').textContent = row.titular_nombre || t('noAssignedCaregiver');
-  document.getElementById('m-titular-sub').textContent = row.titular_email || t('noEmailRegistered');
+  document.getElementById('m-titular').textContent = row.titular_nombre || "Sin cuidadora asignada";
+  document.getElementById('m-titular-sub').textContent = row.titular_email || "No hay correo registrado";
 
-  const suplentesNames = row.suplentes_count > 0 ? row.suplentes_nombres : t('noSubstitutesAssigned');
+  const suplentesNames = row.suplentes_count > 0 ? row.suplentes_nombres : "No hay suplentes asignados para este turno.";
   document.getElementById('m-suplentes').textContent = suplentesNames;
-
-  // Update admin button states
-  const btnCancelar = document.getElementById('btn-cancelar');
-  const btnPromover = document.getElementById('btn-promover');
-
-  // Disable cancel if no titular
-  btnCancelar.disabled = !row.titular_email;
-
-  // Disable promote if no substitutes
-  btnPromover.disabled = row.suplentes_count === 0;
 
   const m = document.getElementById('modal');
   m.classList.remove('hidden');
@@ -170,47 +159,12 @@ function closeModal() {
 }
 
 // ========================================
-// MODAL ASIGNAR CUIDADORA
-// ========================================
-
-function mostrarModalAsignar() {
-  if (!currentSlot) return;
-
-  const d = new Date(currentSlot.fecha + "T00:00:00");
-  document.getElementById('asignar-turno-info').textContent =
-    `${fmtLong.format(d)} - ${currentSlot.hora_inicio}-${currentSlot.hora_fin}`;
-  document.getElementById('input-cuidadora-email').value = '';
-
-  const m = document.getElementById('modalAsignar');
-  m.classList.remove('hidden');
-  m.classList.add('flex');
-}
-
-function cerrarModalAsignar() {
-  const m = document.getElementById('modalAsignar');
-  m.classList.add('hidden');
-  m.classList.remove('flex');
-}
-
-function confirmarAsignacion() {
-  const email = document.getElementById('input-cuidadora-email').value.trim();
-  if (!email) {
-    alert(t('enterEmail') || 'Por favor ingresa un email');
-    return;
-  }
-  if (!currentSlot) return;
-
-  asignarCuidadora(currentSlot.fecha, currentSlot.hora_inicio, currentSlot.hora_fin, email);
-  cerrarModalAsignar();
-}
-
-// ========================================
 // DATA LOADING
 // ========================================
 
 async function load() {
   if (!ADMIN_TOKEN) {
-    alert(t('missingAdminToken'));
+    alert("Falta token admin. Usa el enlace proporcionado.");
     return;
   }
   localStorage.setItem('admin_token', ADMIN_TOKEN);
@@ -229,6 +183,71 @@ async function load() {
     applyFilters();
   } catch (e) {
     console.error(e);
+  }
+
+  // Cargar horas de todas las cuidadoras
+  loadHorasCuidadoras();
+}
+
+async function loadHorasCuidadoras() {
+  const tbody = document.getElementById('tbody-horas');
+
+  try {
+    const r = await fetch(`${API_ADMIN_HORAS}?token=${encodeURIComponent(ADMIN_TOKEN)}`);
+    const data = await r.json();
+
+    if (!data.ok) {
+      throw new Error(data.message || "Error cargando horas");
+    }
+
+    const cuidadoras = data.cuidadoras || [];
+
+    if (cuidadoras.length === 0) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="6" class="p-8 text-center text-slate-400">
+            No hay datos de horas disponibles
+          </td>
+        </tr>
+      `;
+      return;
+    }
+
+    tbody.innerHTML = cuidadoras.map(c => `
+      <tr class="border-b border-slate-100 hover:bg-slate-50/50 transition-colors">
+        <td class="p-4">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-sm">
+              ${(c.nombre || '?')[0].toUpperCase()}
+            </div>
+            <span class="font-semibold text-slate-900">${c.nombre || '—'}</span>
+          </div>
+        </td>
+        <td class="p-4 text-sm text-slate-500">${c.email || '—'}</td>
+        <td class="p-4 text-center">
+          <span class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-emerald-50 text-emerald-700 font-bold text-sm">
+            ${c.horas_trabajadas || 0}h
+          </span>
+        </td>
+        <td class="p-4 text-center">
+          <span class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-amber-50 text-amber-700 font-bold text-sm">
+            ${c.horas_pendientes || 0}h
+          </span>
+        </td>
+        <td class="p-4 text-center font-semibold text-slate-600">${c.turnos_completados || 0}</td>
+        <td class="p-4 text-center font-semibold text-slate-600">${c.turnos_pendientes || 0}</td>
+      </tr>
+    `).join('');
+
+  } catch (e) {
+    console.error('Error cargando horas:', e);
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="6" class="p-8 text-center text-red-500">
+          Error al cargar los datos de horas
+        </td>
+      </tr>
+    `;
   }
 }
 
@@ -275,23 +294,6 @@ function initEventHandlers() {
     weekStart = addDays(weekStart, 7);
     load();
   };
-
-  // Admin action buttons
-  document.getElementById('btn-cancelar').onclick = () => {
-    if (currentSlot) {
-      liberarTurno(currentSlot.fecha, currentSlot.hora_inicio, currentSlot.hora_fin);
-    }
-  };
-  document.getElementById('btn-cambiar').onclick = mostrarModalAsignar;
-  document.getElementById('btn-promover').onclick = () => {
-    if (currentSlot) {
-      promoverSuplente(currentSlot.fecha, currentSlot.hora_inicio, currentSlot.hora_fin);
-    }
-  };
-
-  // Modal asignar cuidadora
-  document.getElementById('btn-confirmar-asignacion').onclick = confirmarAsignacion;
-  document.getElementById('btn-cancelar-asignacion').onclick = cerrarModalAsignar;
 }
 
 // ========================================
@@ -302,119 +304,6 @@ function initAdminApp() {
   initAdminToken();
   initEventHandlers();
   load();
-
-  // Listen for language changes to refresh dynamic content
-  window.addEventListener('languageChanged', () => {
-    // Update select options text
-    updateAdminSelectOptions();
-    // Reload the view
-    if (ADMIN_TOKEN) {
-      header();
-      render();
-    }
-  });
-}
-
-function updateAdminSelectOptions() {
-  // Update filter select options
-  const filterSelect = document.getElementById('filter');
-  if (filterSelect) {
-    filterSelect.querySelectorAll('option').forEach(opt => {
-      const key = opt.getAttribute('data-i18n');
-      if (key) opt.textContent = t(key);
-    });
-  }
-}
-
-async function liberarTurno(fecha, horaInicio, horaFin) {
-  if (!confirm(t('confirmCancelShift') || '¿Cancelar este turno y dejarlo disponible?')) return;
-
-  try {
-    const response = await fetch(API_ADMIN_TURNO, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        admin_token: ADMIN_TOKEN,
-        fecha: fecha,
-        hora_inicio: horaInicio,
-        hora_fin: horaFin,
-        accion: 'liberar'
-      })
-    });
-
-    const result = await response.json();
-    if (result.ok) {
-      alert(t('shiftReleasedSuccess') || '✅ Turno liberado correctamente');
-      closeModal();
-      load();
-    } else {
-      alert('❌ Error: ' + (result.error || result.message || 'No se pudo liberar'));
-    }
-  } catch (error) {
-    console.error('Error:', error);
-    alert('❌ Error de conexión');
-  }
-}
-
-async function asignarCuidadora(fecha, horaInicio, horaFin, emailCuidadora) {
-  if (!confirm(`${t('confirmAssignCaregiver') || '¿Asignar a'} ${emailCuidadora}?`)) return;
-
-  try {
-    const response = await fetch(API_ADMIN_TURNO, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        admin_token: ADMIN_TOKEN,
-        fecha: fecha,
-        hora_inicio: horaInicio,
-        hora_fin: horaFin,
-        accion: 'asignar',
-        cuidadora_email: emailCuidadora
-      })
-    });
-
-    const result = await response.json();
-    if (result.ok) {
-      alert(t('caregiverAssignedSuccess') || '✅ Cuidadora asignada correctamente');
-      closeModal();
-      load();
-    } else {
-      alert('❌ Error: ' + (result.error || result.message || 'No se pudo asignar'));
-    }
-  } catch (error) {
-    console.error('Error:', error);
-    alert('❌ Error de conexión');
-  }
-}
-
-async function promoverSuplente(fecha, horaInicio, horaFin) {
-  if (!confirm(t('confirmPromoteSubstitute') || '¿Promover la primera suplente a titular?')) return;
-
-  try {
-    const response = await fetch(API_ADMIN_TURNO, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        admin_token: ADMIN_TOKEN,
-        fecha: fecha,
-        hora_inicio: horaInicio,
-        hora_fin: horaFin,
-        accion: 'promover'
-      })
-    });
-
-    const result = await response.json();
-    if (result.ok) {
-      alert(t('substitutePromotedSuccess') || '✅ Suplente promovida a titular');
-      closeModal();
-      load();
-    } else {
-      alert('❌ Error: ' + (result.error || result.message || 'No se pudo promover'));
-    }
-  } catch (error) {
-    console.error('Error:', error);
-    alert('❌ Error de conexión');
-  }
 }
 
 // Start the application when DOM is ready
