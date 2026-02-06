@@ -179,8 +179,11 @@
           </button>
 
           <div class="flex gap-2">
-            <input id="input-email" type="email" placeholder="email@cuidadora.com"
-              class="flex-1 px-4 py-3 rounded-2xl border border-slate-200 text-sm font-medium focus:outline-none focus:border-emerald-500" />
+            <select id="select-cuidadora"
+              class="flex-1 px-4 py-3 rounded-2xl border border-slate-200 text-sm font-medium focus:outline-none focus:border-emerald-500 bg-white cursor-pointer appearance-none"
+              style="background-image: url('data:image/svg+xml;charset=UTF-8,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%2212%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%2394a3b8%22 stroke-width=%222%22%3E%3Cpath d=%22m6 9 6 6 6-6%22/%3E%3C/svg%3E'); background-repeat: no-repeat; background-position: right 12px center;">
+              <option value="">Seleccionar cuidadora...</option>
+            </select>
             <button onclick="adminAction('asignar')"
               class="px-4 py-3 rounded-2xl bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold text-sm hover:bg-emerald-100 transition-colors whitespace-nowrap">
               Asignar
@@ -209,4 +212,5 @@
   <script src="js/api.js"></script>
   <script src="js/admin.js"></script>
 </body>
-</html>
+</html>  
+
