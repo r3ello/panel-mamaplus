@@ -1,443 +1,249 @@
-/**
- * MamaPlus - Admin Panel Application
- * Main application logic for admin.html
- */
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MamaPlus · Panel Cuidadoras</title>
 
-// ========================================
-// STATE
-// ========================================
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
 
-let ADMIN_TOKEN = '';
-let weekStart = startOfWeekMonday(new Date());
-let slots = [];
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
 
-// ========================================
-// INITIALIZATION
-// ========================================
+  <!-- External Libraries -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
 
-function initAdminToken() {
-  const url = new URL(location.href);
-  ADMIN_TOKEN = url.searchParams.get('token') || localStorage.getItem('admin_token') || "";
-}
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="css/common.css">
+  <link rel="stylesheet" href="css/index.css">
+</head>
 
-// ========================================
-// UI HELPERS
-// ========================================
+<body class="text-slate-700">
 
-function setRange() {
-  const end = addDays(weekStart, 6);
-  document.getElementById('range').textContent = `${fmtShort.format(weekStart).replace('.', '')} — ${fmtShort.format(end).replace('.', '')}`;
-}
+  <!-- MOBILE MENU BUTTON -->
+  <button id="btn-menu"
+    class="md:hidden fixed top-4 left-4 z-[1000] bg-white/80 backdrop-blur border border-slate-200 rounded-xl px-3 py-2 font-black">
+    ☰
+  </button>
 
-function header() {
-  const th = document.getElementById('thead');
-  th.innerHTML = `<th class="sticky-col border-b border-slate-200 p-5 text-[10px] font-bold uppercase tracking-widest text-slate-400">Horario</th>` +
-    DIAS.map((n, i) => {
-      const d = addDays(weekStart, i);
-      const isToday = isoDate(new Date()) === isoDate(d);
-      return `<th class="border-b border-slate-200 p-5 font-bold ${isToday ? 'bg-emerald-50/50' : ''}">
-        <div class="text-slate-900">${n}</div>
-        <div class="text-[11px] text-slate-400 mt-0.5">${fmtShort.format(d).replace('.', '')}</div>
-        ${isToday ? '<div class="w-1.5 h-1.5 bg-emerald-500 rounded-full mx-auto mt-2"></div>' : ''}
-      </th>`;
-    }).join('');
-}
+  <!-- OVERLAY FOR MOBILE SIDEBAR -->
+  <div id="sidebar-backdrop" class="fixed inset-0 bg-black/30 hidden z-[900] md:hidden"></div>
 
-function getPillStyles(row, isHighlighted) {
-  const highlightClass = isHighlighted ? "ring-4 ring-indigo-500/30 scale-[1.03] shadow-md z-10" : "";
-
-  if (row.estado_slot === 'libre')
-    return `bg-emerald-50 text-emerald-800 border-emerald-100 ${highlightClass}`;
-  if (row.suplentes_count > 0)
-    return `bg-amber-50 text-amber-900 border-amber-200 ${highlightClass}`;
-
-  return `bg-white text-slate-700 border-slate-200 ${highlightClass}`;
-}
-
-// ========================================
-// RENDER TABLE
-// ========================================
-
-function render(filteredList = null) {
-  const listToUse = filteredList || slots;
-  const tb = document.getElementById('tbody');
-  tb.innerHTML = "";
-
-  const q = (document.getElementById('q').value || "").toLowerCase().trim();
-
-  const map = new Map();
-  for (const s of listToUse) {
-    // Normalizar fecha (quitar T00:00:00.000Z) y horas (quitar :00 segundos)
-    const fechaNorm = s.fecha.split('T')[0];
-    const horaIniNorm = s.hora_inicio.substring(0, 5);
-    const horaFinNorm = s.hora_fin.substring(0, 5);
-    const key = `${fechaNorm}|${horaIniNorm}-${horaFinNorm}`;
-    map.set(key, s);
-  }
-
-  for (const [h1, h2] of HOURS_PAIRS) {
-    const tr = document.createElement('tr');
-    tr.className = "group hover:bg-slate-50/30 transition-colors";
-
-    const left = document.createElement('td');
-    left.className = "sticky-col border-b border-slate-100 p-5 text-xs font-bold text-slate-500 tabular-nums";
-    left.textContent = `${h1} - ${h2}`;
-    tr.appendChild(left);
-
-    for (let i = 0; i < 7; i++) {
-      const d = addDays(weekStart, i);
-      const fecha = isoDate(d);
-      const key = `${fecha}|${h1}-${h2}`;
-      const row = map.get(key);
-
-      const td = document.createElement('td');
-      td.className = "border-b border-slate-100 p-2.5 min-w-[140px]";
-
-      if (row) {
-        // Check if this slot matches the search query for highlighting
-        const matchesQuery = q && (
-          (row.titular_nombre || "").toLowerCase().includes(q) ||
-          (row.suplentes_nombres || "").toLowerCase().includes(q)
-        );
-
-        const div = document.createElement('button');
-        div.className = `w-full text-left rounded-2xl border p-3.5 slot-transition font-semibold text-xs relative ${getPillStyles(row, matchesQuery)}`;
-
-        div.innerHTML = `
-          <div class="flex items-center justify-between gap-1 mb-2">
-            <span class="px-1.5 py-0.5 rounded-md ${row.estado_slot === 'libre' ? 'bg-emerald-200/50 text-emerald-800' : 'bg-slate-200/50 text-slate-600'} text-[9px] font-bold uppercase">
-              ${row.estado_slot === 'libre' ? "Libre" : "Ocupado"}
-            </span>
-            ${row.suplentes_count > 0 ? '<span class="text-amber-600"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg></span>' : ''}
+  <!-- LOGIN OVERLAY -->
+  <div id="login-overlay" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-[999] p-4">
+    <div class="min-h-full flex items-center justify-center">
+      <div class="bg-white rounded-3xl w-full max-w-md shadow-2xl overflow-hidden">
+        <div class="p-8 border-b border-slate-100">
+          <h2 class="text-2xl font-extrabold text-slate-800">Acceso a MamaPlus</h2>
+          <p class="text-slate-500 mt-1">Introduce tu token (lo recibes por Telegram) o abre el enlace con <b>?token=</b></p>
+        </div>
+        <div class="p-8">
+          <label class="block text-xs font-black uppercase text-slate-400 mb-2 tracking-widest">Token</label>
+          <input id="token-input" type="text" placeholder="Pega aquí tu token"
+            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-900/30" />
+          <p id="login-error" class="text-sm text-red-600 font-bold mt-3 hidden"></p>
+          <div class="mt-6 grid grid-cols-2 gap-3">
+            <button id="login-clear"
+              class="px-6 py-3 bg-slate-100 text-slate-700 font-bold rounded-xl hover:bg-slate-200 transition-colors">
+              Limpiar
+            </button>
+            <button id="login-submit"
+              class="px-6 py-3 btn-primary text-white font-bold rounded-xl transition-all">
+              Entrar
+            </button>
           </div>
-          <div class="text-[11px] font-extrabold text-slate-900 truncate">${row.titular_nombre || "— Sin titular"}</div>
-          <div class="mt-1.5 flex items-center gap-1.5">
-            <div class="flex -space-x-2">
-              ${Array.from({ length: Math.min(row.suplentes_count, 3) }).map(() => `<div class="w-4 h-4 rounded-full border border-white bg-slate-300"></div>`).join('')}
-            </div>
-            <span class="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">
-              ${row.suplentes_count > 0 ? `${row.suplentes_count} Supl.` : ""}
-            </span>
-          </div>
-        `;
+        </div>
+      </div>
+    </div>
+  </div>
 
-        div.onclick = () => openModal(row);
-        td.appendChild(div);
-      } else {
-        td.innerHTML = `<div class="w-full h-20 rounded-2xl border border-dashed border-slate-200 flex items-center justify-center">
-          <span class="text-[10px] text-slate-300 font-bold uppercase tracking-widest">Vacío</span>
-        </div>`;
-      }
-      tr.appendChild(td);
-    }
-    tb.appendChild(tr);
-  }
-}
+  <!-- TOAST -->
+  <div id="toast" class="fixed bottom-5 left-1/2 -translate-x-1/2 hidden z-[1000]">
+    <div id="toast-inner" class="px-5 py-3 rounded-2xl shadow-xl bg-slate-900 text-white font-bold text-sm"></div>
+  </div>
 
-// ========================================
-// MODAL
-// ========================================
+  <div class="min-h-screen flex flex-col md:flex-row">
+    <!-- Sidebar -->
+    <aside id="sidebar"
+      class="glass-sidebar text-white p-8 flex flex-col shadow-2xl z-[950]
+             fixed md:static inset-y-0 left-0 w-72
+             -translate-x-full md:translate-x-0 transition-transform duration-200">
+      <div class="flex-1">
 
-let currentModalRow = null;
-let lastLiberatedEmail = '';
-
-function openModal(row) {
-  currentModalRow = row;
-
-  const fechaNorm = row.fecha.split('T')[0];
-  const d = new Date(fechaNorm + "T00:00:00");
-  document.getElementById('m-title').textContent = `${fmtLong.format(d)} - ${row.hora_inicio.substring(0,5)}-${row.hora_fin.substring(0,5)}`;
-  document.getElementById('m-titular').textContent = row.titular_nombre || "Sin cuidadora asignada";
-  document.getElementById('m-titular-sub').textContent = row.titular_email || "No hay correo registrado";
-
-  const suplentesNames = row.suplentes_count > 0 ? row.suplentes_nombres : "No hay suplentes asignados para este turno.";
-  document.getElementById('m-suplentes').textContent = suplentesNames;
-
-  // Mostrar/ocultar botones según estado
-  const btnLiberar = document.getElementById('btn-liberar');
-  const btnPromover = document.getElementById('btn-promover');
-  btnLiberar.style.display = row.estado_slot === 'ocupado' ? 'flex' : 'none';
-  btnPromover.style.display = (row.suplentes_count > 0) ? 'flex' : 'none';
-
-  // Texto del botón cerrar/abrir
-  const btnCerrarTexto = document.getElementById('btn-cerrar-texto');
-  if (row.estado_slot === 'cerrado') {
-    btnCerrarTexto.textContent = 'Abrir turno';
-  } else {
-    btnCerrarTexto.textContent = 'Cerrar turno (bloquear)';
-  }
-
-  // Pre-rellenar email si acabamos de liberar un turno
-  document.getElementById('input-email').value = lastLiberatedEmail || '';
-  const msg = document.getElementById('m-action-msg');
-  msg.classList.add('hidden');
-
-  const m = document.getElementById('modal');
-  m.classList.remove('hidden');
-  m.classList.add('flex');
-}
-
-function closeModal() {
-  currentModalRow = null;
-  const m = document.getElementById('modal');
-  m.classList.add('hidden');
-  m.classList.remove('flex');
-}
-
-// ========================================
-// ADMIN ACTIONS
-// ========================================
-
-async function adminAction(accion) {
-  if (!currentModalRow) return;
-
-  const fechaNorm = currentModalRow.fecha.split('T')[0];
-  const horaIni = currentModalRow.hora_inicio.substring(0, 5);
-  const horaFin = currentModalRow.hora_fin.substring(0, 5);
-
-  const body = {
-    admin_token: ADMIN_TOKEN,
-    fecha: fechaNorm,
-    hora_inicio: horaIni,
-    hora_fin: horaFin,
-    accion: accion
-  };
-
-  // Guardar email antes de liberar para auto-completar después
-  if (accion === 'liberar' && currentModalRow.titular_email) {
-    lastLiberatedEmail = currentModalRow.titular_email;
-  }
-
-  if (accion === 'asignar') {
-    const email = document.getElementById('input-email').value.trim();
-    if (!email) {
-      showActionMsg('Escribe el email de la cuidadora', 'text-red-500');
-      return;
-    }
-    body.cuidadora_email = email;
-    // Limpiar el email guardado después de asignar
-    lastLiberatedEmail = '';
-  }
-
-  showActionMsg('Procesando...', 'text-slate-500');
-
-  try {
-    const r = await fetch(API_ADMIN_TURNO, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body)
-    });
-    const data = await r.json();
-
-    if (data.ok) {
-      showActionMsg(data.mensaje || 'Operación realizada', 'text-emerald-600');
-      setTimeout(() => {
-        closeModal();
-        load();
-      }, 1200);
-    } else {
-      showActionMsg(data.error || 'Error en la operación', 'text-red-500');
-    }
-  } catch (e) {
-    console.error('Error admin action:', e);
-    showActionMsg('Error de conexión', 'text-red-500');
-  }
-}
-
-async function adminToggleEstado() {
-  if (!currentModalRow) return;
-
-  const fechaNorm = currentModalRow.fecha.split('T')[0];
-  const horaIni = currentModalRow.hora_inicio.substring(0, 5);
-  const horaFin = currentModalRow.hora_fin.substring(0, 5);
-  const nuevoEstado = currentModalRow.estado_slot === 'cerrado' ? 'abierto' : 'cerrado';
-
-  showActionMsg('Procesando...', 'text-slate-500');
-
-  try {
-    const r = await fetch(API_ADMIN_TURNO, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        admin_token: ADMIN_TOKEN,
-        fecha: fechaNorm,
-        hora_inicio: horaIni,
-        hora_fin: horaFin,
-        accion: 'cambiar_estado',
-        nuevo_estado: nuevoEstado
-      })
-    });
-    const data = await r.json();
-
-    if (data.ok) {
-      showActionMsg(nuevoEstado === 'cerrado' ? 'Turno cerrado' : 'Turno abierto', 'text-emerald-600');
-      setTimeout(() => {
-        closeModal();
-        load();
-      }, 1200);
-    } else {
-      showActionMsg(data.error || 'Error', 'text-red-500');
-    }
-  } catch (e) {
-    console.error('Error toggle estado:', e);
-    showActionMsg('Error de conexión', 'text-red-500');
-  }
-}
-
-function showActionMsg(text, colorClass) {
-  const msg = document.getElementById('m-action-msg');
-  msg.textContent = text;
-  msg.className = `text-center text-sm font-semibold ${colorClass}`;
-  msg.classList.remove('hidden');
-}
-
-// ========================================
-// DATA LOADING
-// ========================================
-
-async function load() {
-  if (!ADMIN_TOKEN) {
-    alert("Falta token admin. Usa el enlace proporcionado.");
-    return;
-  }
-  localStorage.setItem('admin_token', ADMIN_TOKEN);
-
-  setRange();
-  header();
-
-  try {
-    const ws = isoDate(weekStart);
-    const r = await fetch(`${API_ADMIN_SLOTS}?token=${encodeURIComponent(ADMIN_TOKEN)}&week_start=${encodeURIComponent(ws)}`);
-    const data = await r.json();
-    if (!data.ok) {
-      throw new Error(data.message);
-    }
-    slots = data.slots;
-    applyFilters();
-  } catch (e) {
-    console.error(e);
-  }
-
-  // Cargar horas de todas las cuidadoras
-  loadHorasCuidadoras();
-}
-
-async function loadHorasCuidadoras() {
-  const tbody = document.getElementById('tbody-horas');
-
-  try {
-    const r = await fetch(`${API_ADMIN_HORAS}?token=${encodeURIComponent(ADMIN_TOKEN)}`);
-    const data = await r.json();
-
-    if (!data.ok) {
-      throw new Error(data.message || "Error cargando horas");
-    }
-
-    const cuidadoras = data.cuidadoras || [];
-
-    if (cuidadoras.length === 0) {
-      tbody.innerHTML = `
-        <tr>
-          <td colspan="6" class="p-8 text-center text-slate-400">
-            No hay datos de horas disponibles
-          </td>
-        </tr>
-      `;
-      return;
-    }
-
-    tbody.innerHTML = cuidadoras.map(c => `
-      <tr class="border-b border-slate-100 hover:bg-slate-50/50 transition-colors">
-        <td class="p-4">
+        <!-- Institutional Header -->
+        <div class="mb-10 rounded-2xl border border-white/10 bg-black/15 p-4">
           <div class="flex items-center gap-3">
-            <div class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-sm">
-              ${(c.nombre || '?')[0].toUpperCase()}
+            <div class="w-12 h-12 rounded-xl bg-white/10 border border-white/15 flex items-center justify-center">
+              <i data-lucide="shield-check" class="w-6 h-6 text-white"></i>
             </div>
-            <span class="font-semibold text-slate-900">${c.nombre || '—'}</span>
+            <div class="leading-tight">
+              <div class="text-white text-lg font-extrabold tracking-tight">MamaPlus</div>
+              <div class="text-white/60 text-xs font-black uppercase tracking-[0.22em]">Administración</div>
+            </div>
           </div>
-        </td>
-        <td class="p-4 text-sm text-slate-500">${c.email || '—'}</td>
-        <td class="p-4 text-center">
-          <span class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-emerald-50 text-emerald-700 font-bold text-sm">
-            ${c.horas_trabajadas || 0}h
-          </span>
-        </td>
-        <td class="p-4 text-center">
-          <span class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-amber-50 text-amber-700 font-bold text-sm">
-            ${c.horas_pendientes || 0}h
-          </span>
-        </td>
-        <td class="p-4 text-center font-semibold text-slate-600">${c.turnos_completados || 0}</td>
-        <td class="p-4 text-center font-semibold text-slate-600">${c.turnos_pendientes || 0}</td>
-      </tr>
-    `).join('');
 
-  } catch (e) {
-    console.error('Error cargando horas:', e);
-    tbody.innerHTML = `
-      <tr>
-        <td colspan="6" class="p-8 text-center text-red-500">
-          Error al cargar los datos de horas
-        </td>
-      </tr>
-    `;
-  }
-}
+          <div class="mt-3 h-px bg-white/10"></div>
 
-// ========================================
-// FILTERS
-// ========================================
+          <div class="mt-3 flex items-center justify-between">
+            <span class="text-white/70 text-xs font-bold">Panel de turnos</span>
+            <span class="text-emerald-200/90 text-[11px] font-black uppercase tracking-widest">2026</span>
+          </div>
+        </div>
 
-function applyFilters() {
-  const q = (document.getElementById('q').value || "").toLowerCase().trim();
-  const f = document.getElementById('filter').value;
+        <!-- Avatar with caregiver name -->
+        <div class="mb-6 px-2">
+          <div class="flex items-center gap-3 mb-2">
+            <div class="w-10 h-10 rounded-full bg-white/10 border border-white/25 overflow-hidden shadow-sm flex items-center justify-center">
+              <img id="avatar-img" src="./assets/logo.png" alt="MamaPlus" class="w-full h-full object-contain p-1">
+            </div>
+            <div>
+              <p id="user-name" class="font-bold text-white">—</p>
+              <p id="user-role" class="text-xs text-white/70">Cuidadora</p>
+            </div>
+          </div>
+        </div>
 
-  let filtered = slots.slice();
+        <!-- Horas pendientes -->
+        <div class="mb-8 px-2">
+          <div class="rounded-xl border border-white/10 bg-white/5 p-4">
+            <div class="flex items-center gap-3 mb-3">
+              <div class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
+                <i data-lucide="hourglass" class="w-4 h-4 text-white/80"></i>
+              </div>
+              <span class="text-xs font-bold text-white/70 uppercase tracking-wider">Horas pendientes</span>
+            </div>
+            <p id="sidebar-horas-pendientes" class="text-2xl font-extrabold text-white">—</p>
+            <p class="text-xs text-white/50 mt-1">turnos futuros asignados</p>
+          </div>
+        </div>
 
-  // Filter by status
-  if (f === 'libre') filtered = filtered.filter(s => s.estado_slot === 'libre');
-  if (f === 'ocupado') filtered = filtered.filter(s => s.estado_slot === 'ocupado');
-  if (f === 'suplentes') filtered = filtered.filter(s => (s.suplentes_count || 0) > 0);
+        <nav class="flex flex-col gap-2">
+          <button onclick="showTab('dashboard')" id="nav-dashboard"
+            class="nav-item nav-active group flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all w-full text-left">
+            <i data-lucide="calendar-range" class="w-5 h-5 text-white"></i> Mis Turnos
+          </button>
 
-  // Filter by name (Titular OR Suplentes)
-  if (q) {
-    filtered = filtered.filter(s =>
-      (s.titular_nombre || "").toLowerCase().includes(q) ||
-      (s.suplentes_nombres || "").toLowerCase().includes(q)
-    );
-  }
+          <button onclick="showTab('suplencias')" id="nav-suplencias"
+            class="nav-item nav-inactive group flex items-center gap-3 px-4 py-3 rounded-xl transition-all w-full text-left">
+            <i data-lucide="users" class="w-5 h-5 text-white/80"></i> Suplencias
+          </button>
 
-  render(filtered);
-}
+          <button onclick="showTab('disponibilidad')" id="nav-disponibilidad"
+            class="nav-item nav-inactive group flex items-center gap-3 px-4 py-3 rounded-xl transition-all w-full text-left">
+            <i data-lucide="search" class="w-5 h-5 text-white/80"></i> Disponibilidad
+          </button>
 
-// ========================================
-// EVENT HANDLERS
-// ========================================
+          <button onclick="showTab('historial')" id="nav-historial"
+            class="nav-item nav-inactive group flex items-center gap-3 px-4 py-3 rounded-xl transition-all w-full text-left">
+            <i data-lucide="history" class="w-5 h-5 text-white/80"></i> Historial
+          </button>
+        </nav>
+      </div>
 
-function initEventHandlers() {
-  document.getElementById('m-close').onclick = closeModal;
-  document.getElementById('m-close-top').onclick = closeModal;
-  document.getElementById('apply').onclick = applyFilters;
-  document.getElementById('q').onkeyup = (e) => e.key === 'Enter' && applyFilters();
-  document.getElementById('prev').onclick = () => {
-    weekStart = addDays(weekStart, -7);
-    load();
-  };
-  document.getElementById('next').onclick = () => {
-    weekStart = addDays(weekStart, 7);
-    load();
-  };
-}
+      <button onclick="logout()"
+        class="mt-8 flex items-center justify-center gap-2 w-full bg-black/20 hover:bg-black/30 border border-white/10 text-white font-bold rounded-xl py-3 transition-colors">
+        <i data-lucide="log-out" class="w-4 h-4"></i> Cerrar sesión
+      </button>
+    </aside>
 
-// ========================================
-// INITIALIZATION
-// ========================================
+    <!-- Main Content -->
+    <main id="main-content" class="flex-1 p-4 md:p-10 overflow-hidden flex flex-col fade-in"></main>
+  </div>
 
-function initAdminApp() {
-  initAdminToken();
-  initEventHandlers();
-  load();
-}
+  <!-- SHIFT MODAL -->
+  <div id="modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center hidden z-50 p-4">
+    <div class="bg-white rounded-3xl w-full max-w-sm shadow-2xl overflow-hidden">
+      <div class="p-6 text-white text-center" style="background: linear-gradient(135deg,#064e3b,#065f46);">
+        <div class="w-16 h-16 bg-white/15 rounded-full flex items-center justify-center mx-auto mb-4">
+          <i data-lucide="clock" class="w-8 h-8"></i>
+        </div>
+        <h3 class="text-xl font-bold">Gestionar Turno</h3>
+        <p class="text-white/80 text-sm mt-1" id="modal-details">—</p>
+      </div>
 
-// Start the application when DOM is ready
-document.addEventListener('DOMContentLoaded', initAdminApp);
+      <div class="p-8">
+        <label class="block text-xs font-black uppercase text-slate-400 mb-2 tracking-widest">Tipo de Acción</label>
+        <select id="tipo-turno"
+          class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-900/30 mb-3">
+          <option value="titular">Tomar como Titular</option>
+          <option value="suplente">Anotarme como Suplente</option>
+          <option value="cancelar">Cancelar</option>
+          <option value="disponible">Marcar Disponible</option>
+        </select>
+
+        <p id="modal-error" class="text-sm text-red-600 font-bold mb-4 hidden"></p>
+
+        <div class="grid grid-cols-2 gap-3">
+          <button onclick="cerrarModal()"
+            class="px-6 py-3 bg-slate-100 text-slate-600 font-bold rounded-xl hover:bg-slate-200 transition-colors">
+            Cerrar
+          </button>
+          <button onclick="guardarTurno()"
+            class="px-6 py-3 btn-primary text-white font-bold rounded-xl transition-all">
+            Confirmar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FILTERS MODAL -->
+  <div id="filters-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 p-4">
+    <div class="min-h-full flex items-center justify-center">
+      <div class="bg-white rounded-3xl w-full max-w-md shadow-2xl overflow-hidden">
+        <div class="p-6 border-b border-slate-100 flex items-center justify-between">
+          <div>
+            <h3 class="text-xl font-extrabold text-slate-800">Filtros</h3>
+            <p class="text-slate-500 text-sm">Filtra slots disponibles en la semana actual</p>
+          </div>
+          <button onclick="closeFilters()" class="p-2 rounded-xl hover:bg-slate-100">✕</button>
+        </div>
+        <div class="p-6 space-y-4">
+          <div>
+            <label class="block text-xs font-black uppercase text-slate-400 mb-2 tracking-widest">Día</label>
+            <select id="filter-day" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-bold">
+              <option value="all">Todos</option>
+              <option value="0">Lunes</option>
+              <option value="1">Martes</option>
+              <option value="2">Miércoles</option>
+              <option value="3">Jueves</option>
+              <option value="4">Viernes</option>
+              <option value="5">Sábado</option>
+              <option value="6">Domingo</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-black uppercase text-slate-400 mb-2 tracking-widest">Franja</label>
+            <select id="filter-hour" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-bold">
+              <option value="all">Todas</option>
+              <option value="10:00-11:00">10:00-11:00</option>
+              <option value="11:00-12:00">11:00-12:00</option>
+              <option value="12:00-13:00">12:00-13:00</option>
+              <option value="13:00-14:00">13:00-14:00</option>
+              <option value="14:00-15:00">14:00-15:00</option>
+              <option value="15:00-16:00">15:00-16:00</option>
+              <option value="16:00-17:00">16:00-17:00</option>
+              <option value="17:00-18:00">17:00-18:00</option>
+            </select>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3 pt-2">
+            <button onclick="closeFilters()" class="px-6 py-3 bg-slate-100 font-bold rounded-xl hover:bg-slate-200">Cerrar</button>
+            <button onclick="applyFilters()" class="px-6 py-3 btn-primary text-white font-bold rounded-xl transition-all">Aplicar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript Files -->
+  <script src="js/constants.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/index.js"></script>
+</body>
+</html> 
