@@ -324,7 +324,13 @@ async function load() {
 
   try {
     const ws = isoDate(weekStart);
-    const r = await fetch(`${API_ADMIN_SLOTS}?token=${encodeURIComponent(ADMIN_TOKEN)}&week_start=${encodeURIComponent(ws)}`);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 15000);
+
+    const r = await fetch(`${API_ADMIN_SLOTS}?token=${encodeURIComponent(ADMIN_TOKEN)}&week_start=${encodeURIComponent(ws)}`, {
+      signal: controller.signal
+    });
+    clearTimeout(timeoutId);
     const data = await r.json();
     if (!data.ok) {
       throw new Error(data.message);
@@ -332,7 +338,10 @@ async function load() {
     slots = data.slots;
     applyFilters();
   } catch (e) {
-    console.error(e);
+    console.error('Error cargando slots:', e);
+    if (e.name === 'AbortError') {
+      console.error('Timeout: el servidor tardó más de 15s en responder para slots');
+    }
   }
 
   // Cargar horas de todas las cuidadoras
@@ -343,7 +352,13 @@ async function loadHorasCuidadoras() {
   const tbody = document.getElementById('tbody-horas');
 
   try {
-    const r = await fetch(`${API_ADMIN_HORAS}?token=${encodeURIComponent(ADMIN_TOKEN)}`);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 15000);
+
+    const r = await fetch(`${API_ADMIN_HORAS}?token=${encodeURIComponent(ADMIN_TOKEN)}`, {
+      signal: controller.signal
+    });
+    clearTimeout(timeoutId);
     const data = await r.json();
 
     if (!data.ok) {
@@ -392,10 +407,13 @@ async function loadHorasCuidadoras() {
 
   } catch (e) {
     console.error('Error cargando horas:', e);
+    const errorMsg = e.name === 'AbortError'
+      ? 'Timeout: el servidor tardó demasiado en responder. Recarga la página para reintentar.'
+      : `Error al cargar los datos de horas: ${e.message}`;
     tbody.innerHTML = `
       <tr>
         <td colspan="6" class="p-8 text-center text-red-500">
-          Error al cargar los datos de horas
+          ${errorMsg}
         </td>
       </tr>
     `;
