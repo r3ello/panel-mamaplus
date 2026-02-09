@@ -335,7 +335,7 @@ async function load() {
     if (!data.ok) {
       throw new Error(data.message);
     }
-    slots = data.slots;
+    slots = (data.slots || []).filter(s => s.fecha && s.hora_inicio);
     applyFilters();
   } catch (e) {
     console.error('Error cargando slots:', e);
