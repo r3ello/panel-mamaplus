@@ -1,10 +1,10 @@
 /**
  * MamaPlus - Constants
  * API endpoints, configurations, and shared constants
+ * NOTA: API_BASE se define en config.js
  */
 
-// API Configuration
-const API_BASE = "https://tinafactory-n8n.dmxwfe.easypanel.host";
+// API Endpoints (usan API_BASE de config.js)
 const API_ME = `${API_BASE}/webhook/api/me`;
 const API_TURNOS = `${API_BASE}/webhook/api/turnos`;
 const API_GUARDAR = `${API_BASE}/webhook/api/turno`;
