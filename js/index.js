@@ -172,18 +172,15 @@ async function renderDashboard() {
       <div class="stat-card stat-shell relative overflow-hidden rounded-3xl p-6">
         <div class="absolute inset-0 bg-gradient-to-br from-emerald-50 via-white to-white"></div>
         <div class="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-emerald-200/30 blur-2xl"></div>
-        <div class="relative flex items-start justify-between gap-4">
-          <div class="flex items-center gap-4">
-            <div class="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-900 flex items-center justify-center border border-emerald-200">
-              <i data-lucide="calendar-check" class="w-6 h-6"></i>
-            </div>
-            <div>
-              <p class="text-xs font-black uppercase tracking-widest text-slate-500">Asignados</p>
-              <p id="card-asignados" class="text-3xl font-extrabold text-slate-900 leading-tight">—</p>
-              <p class="text-sm text-slate-500 -mt-0.5">esta semana</p>
-            </div>
+        <div class="relative flex items-center gap-4">
+          <div class="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-900 flex items-center justify-center border border-emerald-200 shrink-0">
+            <i data-lucide="calendar-check" class="w-6 h-6"></i>
           </div>
-          <span class="relative text-[11px] font-black uppercase tracking-widest text-emerald-900 bg-emerald-100/70 border border-emerald-200 rounded-full px-3 py-1">Semana</span>
+          <div>
+            <p class="text-xs font-black uppercase tracking-widest text-slate-500">Asignados</p>
+            <p id="card-asignados" class="text-3xl font-extrabold text-slate-900 leading-tight">—</p>
+            <p class="text-sm text-slate-500 -mt-0.5">esta semana</p>
+          </div>
         </div>
         <div class="relative mt-5 h-1.5 w-full rounded-full bg-emerald-100 overflow-hidden">
           <div id="bar-asignados" class="h-full w-1/3 bg-emerald-600/70 rounded-full"></div>
@@ -193,18 +190,15 @@ async function renderDashboard() {
       <div class="stat-card stat-shell relative overflow-hidden rounded-3xl p-6">
         <div class="absolute inset-0 bg-gradient-to-br from-rose-50 via-white to-white"></div>
         <div class="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-rose-200/30 blur-2xl"></div>
-        <div class="relative flex items-start justify-between gap-4">
-          <div class="flex items-center gap-4">
-            <div class="w-12 h-12 rounded-2xl bg-rose-100 text-rose-900 flex items-center justify-center border border-rose-200">
-              <i data-lucide="calendar-x" class="w-6 h-6"></i>
-            </div>
-            <div>
-              <p class="text-xs font-black uppercase tracking-widest text-slate-500">Cancelados</p>
-              <p id="card-cancelados" class="text-3xl font-extrabold text-slate-900 leading-tight">—</p>
-              <p class="text-sm text-slate-500 -mt-0.5">esta semana</p>
-            </div>
+        <div class="relative flex items-center gap-4">
+          <div class="w-12 h-12 rounded-2xl bg-rose-100 text-rose-900 flex items-center justify-center border border-rose-200 shrink-0">
+            <i data-lucide="calendar-x" class="w-6 h-6"></i>
           </div>
-          <span class="relative text-[11px] font-black uppercase tracking-widest text-rose-900 bg-rose-100/70 border border-rose-200 rounded-full px-3 py-1">Control</span>
+          <div>
+            <p class="text-xs font-black uppercase tracking-widest text-slate-500">Cancelados</p>
+            <p id="card-cancelados" class="text-3xl font-extrabold text-slate-900 leading-tight">—</p>
+            <p class="text-sm text-slate-500 -mt-0.5">esta semana</p>
+          </div>
         </div>
         <div class="relative mt-5 h-1.5 w-full rounded-full bg-rose-100 overflow-hidden">
           <div id="bar-cancelados" class="h-full w-1/6 bg-rose-600/70 rounded-full"></div>
@@ -214,18 +208,15 @@ async function renderDashboard() {
       <div class="stat-card stat-shell relative overflow-hidden rounded-3xl p-6">
         <div class="absolute inset-0 bg-gradient-to-br from-amber-50 via-white to-white"></div>
         <div class="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-amber-200/30 blur-2xl"></div>
-        <div class="relative flex items-start justify-between gap-4">
-          <div class="flex items-center gap-4">
-            <div class="w-12 h-12 rounded-2xl bg-amber-100 text-amber-900 flex items-center justify-center border border-amber-200">
-              <i data-lucide="user-plus" class="w-6 h-6"></i>
-            </div>
-            <div>
-              <p class="text-xs font-black uppercase tracking-widest text-slate-500">Suplencias</p>
-              <p id="card-suplencias" class="text-3xl font-extrabold text-slate-900 leading-tight">—</p>
-              <p class="text-sm text-slate-500 -mt-0.5">esta semana</p>
-            </div>
+        <div class="relative flex items-center gap-4">
+          <div class="w-12 h-12 rounded-2xl bg-amber-100 text-amber-900 flex items-center justify-center border border-amber-200 shrink-0">
+            <i data-lucide="user-plus" class="w-6 h-6"></i>
           </div>
-          <span class="relative text-[11px] font-black uppercase tracking-widest text-amber-900 bg-amber-100/70 border border-amber-200 rounded-full px-3 py-1">Extra</span>
+          <div>
+            <p class="text-xs font-black uppercase tracking-widest text-slate-500">Suplencias</p>
+            <p id="card-suplencias" class="text-3xl font-extrabold text-slate-900 leading-tight">—</p>
+            <p class="text-sm text-slate-500 -mt-0.5">esta semana</p>
+          </div>
         </div>
         <div class="relative mt-5 h-1.5 w-full rounded-full bg-amber-100 overflow-hidden">
           <div id="bar-suplencias" class="h-full w-1/4 bg-amber-600/70 rounded-full"></div>
@@ -235,18 +226,15 @@ async function renderDashboard() {
       <div class="stat-card stat-shell relative overflow-hidden rounded-3xl p-6">
         <div class="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-white"></div>
         <div class="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-blue-200/30 blur-2xl"></div>
-        <div class="relative flex items-start justify-between gap-4">
-          <div class="flex items-center gap-4">
-            <div class="w-12 h-12 rounded-2xl bg-blue-100 text-blue-900 flex items-center justify-center border border-blue-200">
-              <i data-lucide="clock" class="w-6 h-6"></i>
-            </div>
-            <div>
-              <p class="text-xs font-black uppercase tracking-widest text-slate-500">Horas</p>
-              <p id="card-horas" class="text-3xl font-extrabold text-slate-900 leading-tight">—</p>
-              <p class="text-sm text-slate-500 -mt-0.5">trabajadas</p>
-            </div>
+        <div class="relative flex items-center gap-4">
+          <div class="w-12 h-12 rounded-2xl bg-blue-100 text-blue-900 flex items-center justify-center border border-blue-200 shrink-0">
+            <i data-lucide="clock" class="w-6 h-6"></i>
           </div>
-          <span class="relative text-[11px] font-black uppercase tracking-widest text-blue-900 bg-blue-100/70 border border-blue-200 rounded-full px-3 py-1">Total</span>
+          <div>
+            <p class="text-xs font-black uppercase tracking-widest text-slate-500">Horas</p>
+            <p id="card-horas" class="text-3xl font-extrabold text-slate-900 leading-tight">—</p>
+            <p class="text-sm text-slate-500 -mt-0.5">trabajadas</p>
+          </div>
         </div>
         <div class="relative mt-5 h-1.5 w-full rounded-full bg-blue-100 overflow-hidden">
           <div id="bar-horas" class="h-full w-1/4 bg-blue-600/70 rounded-full"></div>
@@ -598,10 +586,19 @@ function abrirModal(cell) {
   const select = document.getElementById('tipo-turno');
   const status = cell.dataset.status;
 
-  if (status === 'titular_otro') select.value = 'suplente';
-  else if (status === 'suplente_mio') select.value = 'cancelar';
-  else if (status === 'titular_mio') select.value = 'cancelar';
-  else select.value = 'titular';
+  // Build options based on current slot status
+  const opciones = {
+    titular_mio:  [{ value: 'cancelar', label: 'Cancelar mi turno' }],
+    suplente_mio: [{ value: 'cancelar', label: 'Cancelar mi suplencia' }],
+    titular_otro: [{ value: 'suplente', label: 'Anotarme como Suplente' }],
+    disponible:   [
+      { value: 'titular', label: 'Tomar como Titular' },
+      { value: 'suplente', label: 'Anotarme como Suplente' }
+    ]
+  };
+
+  const items = opciones[status] || opciones.disponible;
+  select.innerHTML = items.map(o => `<option value="${o.value}">${o.label}</option>`).join('');
 
   document.getElementById('modal-details').textContent = `${prettyDate} - ${hora}`;
   document.getElementById('modal-error').classList.add('hidden');
@@ -632,11 +629,45 @@ async function guardarTurno() {
     toast("Guardado");
     await refreshWeekData();
     fillCalendar();
+    updateStatCards();
   } catch (e) {
     err.textContent = e.message || "No se pudo guardar";
     err.classList.remove('hidden');
     toast(e.message || "No se pudo guardar");
     console.error(e);
+  }
+}
+
+async function updateStatCards() {
+  const asignados = slotsList.filter(s => s.status === 'titular_mio').length;
+  const suplencias = slotsList.filter(s => s.status === 'suplente_mio').length;
+  const clamp = (n) => Math.max(6, Math.min(100, n));
+
+  const elAsig = document.getElementById('card-asignados');
+  const elSupl = document.getElementById('card-suplencias');
+  if (elAsig) elAsig.textContent = asignados;
+  if (elSupl) elSupl.textContent = suplencias;
+
+  const barAsig = document.getElementById('bar-asignados');
+  const barSupl = document.getElementById('bar-suplencias');
+  if (barAsig) barAsig.style.width = clamp(asignados * 8) + '%';
+  if (barSupl) barSupl.style.width = clamp(suplencias * 10) + '%';
+
+  // Refresh hours from backend
+  try {
+    const horasData = await apiHorasTrabajadas();
+    const horasTrabajadas = horasData.horas_trabajadas || 0;
+    const horasPendientes = horasData.horas_pendientes || 0;
+
+    const elHoras = document.getElementById('card-horas');
+    if (elHoras) elHoras.textContent = horasTrabajadas;
+    const barHoras = document.getElementById('bar-horas');
+    if (barHoras) barHoras.style.width = clamp(horasTrabajadas * 2) + '%';
+
+    const sidebarHoras = document.getElementById('sidebar-horas-pendientes');
+    if (sidebarHoras) sidebarHoras.textContent = horasPendientes + 'h';
+  } catch (err) {
+    console.error('Error actualizando horas:', err);
   }
 }
 
