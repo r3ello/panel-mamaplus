@@ -11,6 +11,7 @@ let ADMIN_TOKEN = '';
 let weekStart = startOfWeekMonday(new Date());
 let slots = [];
 let cuidadorasList = []; // Lista de cuidadoras para el selector
+let allCaregivers = []; // Lista unificada para autocomplete
 
 // ========================================
 // INITIALIZATION
@@ -344,8 +345,9 @@ async function load() {
     }
   }
 
-  // Cargar horas de todas las cuidadoras
-  loadHorasCuidadoras();
+  // Cargar horas de todas las cuidadoras y después construir lista de autocomplete
+  await loadHorasCuidadoras();
+  buildCaregiversList();
 }
 
 async function loadHorasCuidadoras() {
@@ -447,6 +449,129 @@ function applyFilters() {
 }
 
 // ========================================
+// AUTOCOMPLETE
+// ========================================
+
+function buildCaregiversList() {
+  const namesMap = new Map();
+
+  // 1. Add from cuidadorasList (API_ADMIN_HORAS - tabla cuidadora_usuarios)
+  for (const c of cuidadorasList) {
+    if (c.nombre) {
+      namesMap.set(c.nombre.trim().toLowerCase(), {
+        nombre: c.nombre.trim(),
+        email: (c.email || '').trim()
+      });
+    }
+  }
+
+  // 2. Add from slots (titulares y suplentes - incluye quienes se asignaron desde admin)
+  for (const s of slots) {
+    const titName = (s.titular_nombre || '').trim();
+    if (titName && !namesMap.has(titName.toLowerCase())) {
+      namesMap.set(titName.toLowerCase(), {
+        nombre: titName,
+        email: (s.titular_email || '').trim()
+      });
+    }
+
+    // Suplentes
+    if (s.suplentes_nombres) {
+      for (const name of s.suplentes_nombres.split(',')) {
+        const trimmed = name.trim();
+        if (trimmed && !namesMap.has(trimmed.toLowerCase())) {
+          namesMap.set(trimmed.toLowerCase(), { nombre: trimmed, email: '' });
+        }
+      }
+    }
+  }
+
+  allCaregivers = Array.from(namesMap.values()).sort((a, b) =>
+    a.nombre.localeCompare(b.nombre, 'es')
+  );
+}
+
+function showDropdown(matches) {
+  const dropdown = document.getElementById('q-dropdown');
+  const input = document.getElementById('q');
+
+  if (matches.length === 0) {
+    dropdown.classList.add('hidden');
+    return;
+  }
+
+  dropdown.innerHTML = `
+    <div class="p-4 border-b border-slate-100 flex items-center justify-between">
+      <span class="text-xs font-bold uppercase tracking-widest text-slate-400">${matches.length} cuidadora${matches.length !== 1 ? 's' : ''} encontrada${matches.length !== 1 ? 's' : ''}</span>
+      <button type="button" id="q-dropdown-close" class="text-slate-400 hover:text-slate-600 text-sm font-semibold">Cerrar</button>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-1 p-3">
+      ${matches.map(c => `
+        <button type="button" class="text-left px-4 py-3.5 hover:bg-emerald-50 rounded-xl transition-colors flex items-center gap-4"
+                data-name="${c.nombre}">
+          <div class="w-11 h-11 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-lg flex-shrink-0">
+            ${(c.nombre || '?')[0].toUpperCase()}
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="font-bold text-slate-900 text-[15px] leading-tight">${c.nombre}</div>
+            ${c.email ? `<div class="text-sm text-slate-400 mt-0.5">${c.email}</div>` : '<div class="text-sm text-slate-300 mt-0.5 italic">Sin email registrado</div>'}
+          </div>
+        </button>
+      `).join('')}
+    </div>
+  `;
+
+  dropdown.classList.remove('hidden');
+
+  document.getElementById('q-dropdown-close').onclick = () => {
+    dropdown.classList.add('hidden');
+  };
+
+  dropdown.querySelectorAll('button[data-name]').forEach(btn => {
+    btn.onclick = () => {
+      input.value = btn.dataset.name;
+      dropdown.classList.add('hidden');
+      applyFilters();
+    };
+  });
+}
+
+function initAutocomplete() {
+  const input = document.getElementById('q');
+  const dropdown = document.getElementById('q-dropdown');
+
+  input.addEventListener('input', () => {
+    const val = input.value.toLowerCase().trim();
+    if (!val) {
+      dropdown.classList.add('hidden');
+      return;
+    }
+
+    const matches = allCaregivers.filter(c =>
+      (c.nombre || '').toLowerCase().includes(val) ||
+      (c.email || '').toLowerCase().includes(val)
+    );
+
+    showDropdown(matches);
+  });
+
+  // Show all caregivers on focus when input is empty
+  input.addEventListener('focus', () => {
+    if (!input.value.trim() && allCaregivers.length > 0) {
+      showDropdown(allCaregivers);
+    } else if (input.value.trim()) {
+      input.dispatchEvent(new Event('input'));
+    }
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('#q') && !e.target.closest('#q-dropdown')) {
+      dropdown.classList.add('hidden');
+    }
+  });
+}
+
+// ========================================
 // EVENT HANDLERS
 // ========================================
 
@@ -472,6 +597,7 @@ function initEventHandlers() {
 function initAdminApp() {
   initAdminToken();
   initEventHandlers();
+  initAutocomplete();
   load();
 }
 
