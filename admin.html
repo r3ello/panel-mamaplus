@@ -25,10 +25,19 @@
     <header class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
       <div>
         <div class="flex items-center gap-2 mb-1">
-          <span class="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">Gestión Interna</span>
+          <span class="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider" data-i18n="internalManagement">Gestión Interna</span>
         </div>
-        <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">Panel Admin <span class="text-emerald-700">MamaPlus</span></h1>
-        <p class="text-slate-500 font-medium">Control semanal de turnos y disponibilidad de cuidadoras.</p>
+        <div class="flex items-center gap-4">
+          <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight"><span data-i18n="adminPanel">Panel Admin</span> <span class="text-emerald-700">MamaPlus</span></h1>
+          <button onclick="toggleLanguage()" class="lang-switcher lang-switcher-light">
+            <span id="lang-flag" class="flag-icon flag-es"></span>
+            <span id="lang-btn-text" class="text-xs font-bold">ES</span>
+            <span class="text-slate-300 mx-0.5">|</span>
+            <span id="lang-flag-alt" class="flag-icon flag-de"></span>
+            <span id="lang-btn-text-alt" class="text-xs font-bold text-slate-400">DE</span>
+          </button>
+        </div>
+        <p class="text-slate-500 font-medium" data-i18n="weeklyControlDescription">Control semanal de turnos y disponibilidad de cuidadoras.</p>
       </div>
 
       <div class="flex items-center bg-white p-1.5 rounded-2xl shadow-sm border border-slate-200">
@@ -46,27 +55,27 @@
     <section class="glass-card rounded-[2rem] p-6 mb-8 border border-slate-200">
       <div class="grid grid-cols-1 md:grid-cols-12 gap-5 items-end">
         <div class="md:col-span-6">
-          <label class="block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2.5 ml-1">Buscar Cuidadora (Titular o Suplente)</label>
+          <label class="block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2.5 ml-1" data-i18n="searchCaregiver">Buscar Cuidadora (Titular o Suplente)</label>
           <div class="relative group">
             <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
             </span>
             <input id="q" type="text" autocomplete="off" class="w-full rounded-2xl border border-slate-200 bg-slate-50/50 pl-11 pr-4 py-3.5 font-semibold text-slate-700 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all"
-                   placeholder="Ej: Claudia..." />
+                   data-i18n-placeholder="searchPlaceholder" placeholder="Ej: Claudia..." />
           </div>
         </div>
         <div class="md:col-span-4">
-          <label class="block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2.5 ml-1">Estado del Turno</label>
+          <label class="block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2.5 ml-1" data-i18n="shiftStatus">Estado del Turno</label>
           <select id="filter" class="w-full rounded-2xl border border-slate-200 bg-slate-50/50 px-4 py-3.5 font-semibold text-slate-700 focus:outline-none focus:border-emerald-500 transition-all appearance-none cursor-pointer">
-            <option value="all">Ver todos los turnos</option>
-            <option value="libre">Solo Libres</option>
-            <option value="ocupado">Solo Ocupados</option>
-            <option value="suplentes">Con Suplentes asignados</option>
+            <option value="all" data-i18n="viewAllShifts">Ver todos los turnos</option>
+            <option value="libre" data-i18n="onlyFree">Solo Libres</option>
+            <option value="ocupado" data-i18n="onlyOccupied">Solo Ocupados</option>
+            <option value="suplentes" data-i18n="withSubstitutes">Con Suplentes asignados</option>
           </select>
         </div>
         <div class="md:col-span-2">
           <button id="apply" class="btn-primary w-full text-white font-bold py-4 rounded-2xl shadow-lg flex items-center justify-center gap-2">
-            <span>Filtrar</span>
+            <span data-i18n="filter">Filtrar</span>
           </button>
         </div>
       </div>
@@ -98,8 +107,8 @@
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-indigo-600"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
           </div>
           <div>
-            <h2 class="text-xl font-extrabold text-slate-900">Horas por Cuidadora</h2>
-            <p class="text-sm text-slate-500">Resumen de horas trabajadas y pendientes</p>
+            <h2 class="text-xl font-extrabold text-slate-900" data-i18n="hoursPerCaregiver">Horas por Cuidadora</h2>
+            <p class="text-sm text-slate-500" data-i18n="hoursSummaryDesc">Resumen de horas trabajadas y pendientes</p>
           </div>
         </div>
       </div>
@@ -107,12 +116,12 @@
         <table class="w-full border-collapse">
           <thead>
             <tr class="bg-slate-50/50 border-b border-slate-200">
-              <th class="p-4 text-left text-[10px] font-bold uppercase tracking-widest text-slate-400">Cuidadora</th>
+              <th class="p-4 text-left text-[10px] font-bold uppercase tracking-widest text-slate-400" data-i18n="caregiver">Cuidadora</th>
               <th class="p-4 text-left text-[10px] font-bold uppercase tracking-widest text-slate-400">Email</th>
-              <th class="p-4 text-center text-[10px] font-bold uppercase tracking-widest text-slate-400">Horas Trabajadas</th>
-              <th class="p-4 text-center text-[10px] font-bold uppercase tracking-widest text-slate-400">Horas Pendientes</th>
-              <th class="p-4 text-center text-[10px] font-bold uppercase tracking-widest text-slate-400">Turnos Completados</th>
-              <th class="p-4 text-center text-[10px] font-bold uppercase tracking-widest text-slate-400">Turnos Pendientes</th>
+              <th class="p-4 text-center text-[10px] font-bold uppercase tracking-widest text-slate-400" data-i18n="hoursWorked">Horas Trabajadas</th>
+              <th class="p-4 text-center text-[10px] font-bold uppercase tracking-widest text-slate-400" data-i18n="hoursPending">Horas Pendientes</th>
+              <th class="p-4 text-center text-[10px] font-bold uppercase tracking-widest text-slate-400" data-i18n="shiftsCompleted">Turnos Completados</th>
+              <th class="p-4 text-center text-[10px] font-bold uppercase tracking-widest text-slate-400" data-i18n="shiftsPending">Turnos Pendientes</th>
             </tr>
           </thead>
           <tbody id="tbody-horas" class="bg-white/50">
@@ -137,8 +146,8 @@
         <button id="m-close-top" class="absolute top-6 right-6 text-white/60 hover:text-white">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
         </button>
-        <span class="inline-block px-3 py-1 rounded-full bg-white/20 text-[10px] font-bold uppercase tracking-tighter mb-3">Ficha de Turno</span>
-        <h3 class="text-2xl font-extrabold tracking-tight">Detalle del horario</h3>
+        <span class="inline-block px-3 py-1 rounded-full bg-white/20 text-[10px] font-bold uppercase tracking-tighter mb-3" data-i18n="shiftCard">Ficha de Turno</span>
+        <h3 class="text-2xl font-extrabold tracking-tight" data-i18n="scheduleDetail">Detalle del horario</h3>
         <div id="m-title" class="text-emerald-100/90 mt-1 font-medium flex items-center gap-2">
           <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
           —
@@ -146,7 +155,7 @@
       </div>
       <div class="p-8 space-y-5">
         <div class="group transition-all">
-          <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5 ml-1">Cuidadora Titular</p>
+          <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5 ml-1" data-i18n="titularCaregiver">Cuidadora Titular</p>
           <div class="p-4 rounded-2xl bg-slate-50 border border-slate-100 flex items-center gap-4">
             <div class="w-10 h-10 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold">T</div>
             <div>
@@ -157,7 +166,7 @@
         </div>
 
         <div>
-          <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5 ml-1">Cuerpo de Suplentes</p>
+          <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5 ml-1" data-i18n="substituteBody">Cuerpo de Suplentes</p>
           <div class="p-4 rounded-2xl bg-amber-50/50 border border-amber-100/50 flex items-start gap-4">
             <div class="w-10 h-10 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center font-bold flex-shrink-0 text-sm">S</div>
             <p id="m-suplentes" class="font-semibold text-slate-700 text-sm leading-relaxed pt-1.5">—</p>
@@ -166,29 +175,29 @@
 
         <!-- Acciones Admin -->
         <div id="m-actions" class="space-y-2.5">
-          <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5 ml-1">Acciones de Admin</p>
+          <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5 ml-1" data-i18n="adminActions">Acciones de Admin</p>
 
           <button id="btn-liberar" onclick="adminAction('liberar')"
             class="w-full px-4 py-3 rounded-2xl bg-red-50 text-red-700 border border-red-200 font-bold text-sm hover:bg-red-100 transition-colors flex items-center gap-3">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-            Liberar turno (quitar titular)
+            <span data-i18n="releaseShift">Liberar turno (quitar titular)</span>
           </button>
 
           <button id="btn-promover" onclick="adminAction('promover')"
             class="w-full px-4 py-3 rounded-2xl bg-indigo-50 text-indigo-700 border border-indigo-200 font-bold text-sm hover:bg-indigo-100 transition-colors flex items-center gap-3">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg>
-            Promover suplente a titular
+            <span data-i18n="promoteToTitular">Promover suplente a titular</span>
           </button>
 
           <div class="flex gap-2">
             <select id="select-cuidadora"
               class="flex-1 px-4 py-3 rounded-2xl border border-slate-200 text-sm font-medium focus:outline-none focus:border-emerald-500 bg-white cursor-pointer appearance-none"
               style="background-image: url('data:image/svg+xml;charset=UTF-8,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%2212%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%2394a3b8%22 stroke-width=%222%22%3E%3Cpath d=%22m6 9 6 6 6-6%22/%3E%3C/svg%3E'); background-repeat: no-repeat; background-position: right 12px center;">
-              <option value="">Seleccionar cuidadora...</option>
+              <option value="" data-i18n="selectCaregiverOption">Seleccionar cuidadora...</option>
             </select>
             <button onclick="adminAction('asignar')"
               class="px-4 py-3 rounded-2xl bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold text-sm hover:bg-emerald-100 transition-colors whitespace-nowrap">
-              Asignar
+              <span data-i18n="assign">Asignar</span>
             </button>
           </div>
 
@@ -202,7 +211,7 @@
         </div>
 
         <div class="pt-2">
-          <button id="m-close" class="w-full px-5 py-4 rounded-2xl bg-slate-900 text-white font-bold hover:bg-slate-800 transition-colors shadow-lg">Cerrar Detalle</button>
+          <button id="m-close" class="w-full px-5 py-4 rounded-2xl bg-slate-900 text-white font-bold hover:bg-slate-800 transition-colors shadow-lg" data-i18n="closeDetail">Cerrar Detalle</button>
         </div>
       </div>
     </div>
@@ -211,6 +220,7 @@
   <!-- JavaScript Files -->
   <script src="js/config.js"></script>
   <script src="js/constants.js"></script>
+  <script src="js/i18n.js"></script>
   <script src="js/utils.js"></script>
   <script src="js/api.js"></script>
   <script src="js/admin.js"></script>

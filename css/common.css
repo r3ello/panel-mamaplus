@@ -66,3 +66,69 @@
   border: 1px solid rgba(255, 255, 255, 0.5);
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
 }
+
+/* ========================================
+   LANGUAGE FLAGS (SVG-based, cross-browser)
+   ======================================== */
+.flag-icon {
+  display: inline-block;
+  width: 22px;
+  height: 16px;
+  border-radius: 3px;
+  background-size: cover;
+  background-position: center;
+  vertical-align: middle;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+  flex-shrink: 0;
+}
+
+.flag-es {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 20'%3E%3Crect fill='%23c60b1e' width='30' height='20'/%3E%3Crect fill='%23ffc400' y='5' width='30' height='10'/%3E%3C/svg%3E");
+}
+
+.flag-de {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 20'%3E%3Crect fill='%23000' width='30' height='7'/%3E%3Crect fill='%23DD0000' y='7' width='30' height='6'/%3E%3Crect fill='%23FFCE00' y='13' width='30' height='7'/%3E%3C/svg%3E");
+}
+
+/* Language switcher button */
+.lang-switcher {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  padding: 6px 12px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 13px;
+  transition: all 0.2s ease;
+  border: 1px solid rgba(0,0,0,0.08);
+  background: rgba(255,255,255,0.1);
+}
+
+.lang-switcher:hover {
+  background: rgba(255,255,255,0.2);
+}
+
+/* Sidebar variant */
+.lang-switcher-sidebar {
+  color: white;
+  border-color: rgba(255,255,255,0.15);
+  background: rgba(0,0,0,0.15);
+}
+
+.lang-switcher-sidebar:hover {
+  background: rgba(0,0,0,0.25);
+}
+
+/* Light variant (for admin header and login) */
+.lang-switcher-light {
+  color: #334155;
+  border-color: #e2e8f0;
+  background: white;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+
+.lang-switcher-light:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}

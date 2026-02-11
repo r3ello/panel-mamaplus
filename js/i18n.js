@@ -171,7 +171,41 @@ const translations = {
     // Language
     language: "Idioma",
     spanish: "Español",
-    german: "Deutsch"
+    german: "Deutsch",
+
+    // Additional dynamic content - Index
+    hours: "Horas",
+    worked: "trabajadas",
+    pendingHours: "Horas pendientes",
+    futureAssignedShifts: "turnos futuros asignados",
+    cancelMyShift: "Cancelar mi turno",
+    cancelMySubstitution: "Cancelar mi suplencia",
+
+    // Additional dynamic content - Admin
+    hoursPerCaregiver: "Horas por Cuidadora",
+    hoursSummaryDesc: "Resumen de horas trabajadas y pendientes",
+    hoursWorked: "Horas Trabajadas",
+    hoursPending: "Horas Pendientes",
+    shiftsCompleted: "Turnos Completados",
+    shiftsPending: "Turnos Pendientes",
+    noHoursData: "No hay datos de horas disponibles",
+    loadingData: "Cargando datos...",
+    releaseShift: "Liberar turno (quitar titular)",
+    promoteToTitular: "Promover suplente a titular",
+    closeShiftBlock: "Cerrar turno (bloquear)",
+    openShift: "Abrir turno",
+    shiftClosed: "Turno cerrado",
+    shiftOpened: "Turno abierto",
+    processing: "Procesando...",
+    connectionError: "Error de conexión con el servidor",
+    timeoutError: "Timeout: el servidor tardó demasiado.",
+    operationDone: "Operación realizada",
+    operationError: "Error en la operación",
+    selectCaregiverOption: "Seleccionar cuidadora...",
+    caregiverFound: "cuidadora(s) encontrada(s)",
+    noEmailShort: "Sin email registrado",
+    selectCaregiverFromList: "Selecciona una cuidadora de la lista",
+    occupied: "Ocupado"
   },
 
   de: {
@@ -337,7 +371,41 @@ const translations = {
     // Language
     language: "Sprache",
     spanish: "Español",
-    german: "Deutsch"
+    german: "Deutsch",
+
+    // Additional dynamic content - Index
+    hours: "Stunden",
+    worked: "gearbeitet",
+    pendingHours: "Ausstehende Stunden",
+    futureAssignedShifts: "zukünftige zugewiesene Schichten",
+    cancelMyShift: "Meine Schicht stornieren",
+    cancelMySubstitution: "Meine Vertretung stornieren",
+
+    // Additional dynamic content - Admin
+    hoursPerCaregiver: "Stunden pro Betreuerin",
+    hoursSummaryDesc: "Übersicht über geleistete und ausstehende Stunden",
+    hoursWorked: "Geleistete Stunden",
+    hoursPending: "Ausstehende Stunden",
+    shiftsCompleted: "Abgeschlossene Schichten",
+    shiftsPending: "Ausstehende Schichten",
+    noHoursData: "Keine Stundendaten verfügbar",
+    loadingData: "Daten werden geladen...",
+    releaseShift: "Schicht freigeben (Titular entfernen)",
+    promoteToTitular: "Vertretung zur Titularin befördern",
+    closeShiftBlock: "Schicht schließen (sperren)",
+    openShift: "Schicht öffnen",
+    shiftClosed: "Schicht geschlossen",
+    shiftOpened: "Schicht geöffnet",
+    processing: "Verarbeitung...",
+    connectionError: "Verbindungsfehler zum Server",
+    timeoutError: "Timeout: Server hat zu lange gebraucht.",
+    operationDone: "Vorgang abgeschlossen",
+    operationError: "Fehler bei der Operation",
+    selectCaregiverOption: "Betreuerin auswählen...",
+    caregiverFound: "Betreuerin(nen) gefunden",
+    noEmailShort: "Keine E-Mail registriert",
+    selectCaregiverFromList: "Bitte Betreuerin aus der Liste auswählen",
+    occupied: "Besetzt"
   }
 };
 

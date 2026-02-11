@@ -32,9 +32,10 @@ function setRange() {
 }
 
 function header() {
+  const days = getLocalizedDays();
   const th = document.getElementById('thead');
-  th.innerHTML = `<th class="sticky-col border-b border-slate-200 p-5 text-[10px] font-bold uppercase tracking-widest text-slate-400">Horario</th>` +
-    DIAS.map((n, i) => {
+  th.innerHTML = `<th class="sticky-col border-b border-slate-200 p-5 text-[10px] font-bold uppercase tracking-widest text-slate-400">${t('schedule')}</th>` +
+    days.map((n, i) => {
       const d = addDays(weekStart, i);
       const isToday = isoDate(new Date()) === isoDate(d);
       return `<th class="border-b border-slate-200 p-5 font-bold ${isToday ? 'bg-emerald-50/50' : ''}">
@@ -105,20 +106,25 @@ function render(filteredList = null) {
         const div = document.createElement('button');
         div.className = `w-full text-left rounded-2xl border p-3.5 slot-transition font-semibold text-xs relative ${getPillStyles(row, matchesQuery)}`;
 
+        const freeLabel = t('free');
+        const occupiedLabel = t('occupied');
+        const noTitularLabel = t('noTitular');
+        const suplShort = t('substitutesShort');
+
         div.innerHTML = `
           <div class="flex items-center justify-between gap-1 mb-2">
             <span class="px-1.5 py-0.5 rounded-md ${row.estado_slot === 'libre' ? 'bg-emerald-200/50 text-emerald-800' : 'bg-slate-200/50 text-slate-600'} text-[9px] font-bold uppercase">
-              ${row.estado_slot === 'libre' ? "Libre" : "Ocupado"}
+              ${row.estado_slot === 'libre' ? freeLabel : occupiedLabel}
             </span>
             ${row.suplentes_count > 0 ? '<span class="text-amber-600"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg></span>' : ''}
           </div>
-          <div class="text-[11px] font-extrabold text-slate-900 truncate">${row.titular_nombre || "— Sin titular"}</div>
+          <div class="text-[11px] font-extrabold text-slate-900 truncate">${row.titular_nombre || noTitularLabel}</div>
           <div class="mt-1.5 flex items-center gap-1.5">
             <div class="flex -space-x-2">
               ${Array.from({ length: Math.min(row.suplentes_count, 3) }).map(() => `<div class="w-4 h-4 rounded-full border border-white bg-slate-300"></div>`).join('')}
             </div>
             <span class="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">
-              ${row.suplentes_count > 0 ? `${row.suplentes_count} Supl.` : ""}
+              ${row.suplentes_count > 0 ? `${row.suplentes_count} ${suplShort}` : ""}
             </span>
           </div>
         `;
@@ -127,7 +133,7 @@ function render(filteredList = null) {
         td.appendChild(div);
       } else {
         td.innerHTML = `<div class="w-full h-20 rounded-2xl border border-dashed border-slate-200 flex items-center justify-center">
-          <span class="text-[10px] text-slate-300 font-bold uppercase tracking-widest">Vacío</span>
+          <span class="text-[10px] text-slate-300 font-bold uppercase tracking-widest">${t('empty')}</span>
         </div>`;
       }
       tr.appendChild(td);
@@ -149,10 +155,10 @@ function openModal(row) {
   const fechaNorm = row.fecha.split('T')[0];
   const d = new Date(fechaNorm + "T00:00:00");
   document.getElementById('m-title').textContent = `${fmtLong.format(d)} - ${row.hora_inicio.substring(0,5)}-${row.hora_fin.substring(0,5)}`;
-  document.getElementById('m-titular').textContent = row.titular_nombre || "Sin cuidadora asignada";
-  document.getElementById('m-titular-sub').textContent = row.titular_email || "No hay correo registrado";
+  document.getElementById('m-titular').textContent = row.titular_nombre || t('noAssignedCaregiver');
+  document.getElementById('m-titular-sub').textContent = row.titular_email || t('noEmailRegistered');
 
-  const suplentesNames = row.suplentes_count > 0 ? row.suplentes_nombres : "No hay suplentes asignados para este turno.";
+  const suplentesNames = row.suplentes_count > 0 ? row.suplentes_nombres : t('noSubstitutesAssigned');
   document.getElementById('m-suplentes').textContent = suplentesNames;
 
   // Mostrar/ocultar botones según estado
@@ -164,14 +170,14 @@ function openModal(row) {
   // Texto del botón cerrar/abrir
   const btnCerrarTexto = document.getElementById('btn-cerrar-texto');
   if (row.estado_slot === 'cerrado') {
-    btnCerrarTexto.textContent = 'Abrir turno';
+    btnCerrarTexto.textContent = t('openShift');
   } else {
-    btnCerrarTexto.textContent = 'Cerrar turno (bloquear)';
+    btnCerrarTexto.textContent = t('closeShiftBlock');
   }
 
   // Poblar selector de cuidadoras
   const selectEl = document.getElementById('select-cuidadora');
-  selectEl.innerHTML = '<option value="">Seleccionar cuidadora...</option>' +
+  selectEl.innerHTML = `<option value="">${t('selectCaregiverOption')}</option>` +
     cuidadorasList.map(c =>
       `<option value="${c.email}">${c.nombre} (${c.email})</option>`
     ).join('');
@@ -219,7 +225,7 @@ async function adminAction(accion) {
   if (accion === 'asignar') {
     const email = document.getElementById('select-cuidadora').value;
     if (!email) {
-      showActionMsg('Selecciona una cuidadora de la lista', 'text-red-500');
+      showActionMsg(t('selectCaregiverFromList'), 'text-red-500');
       return;
     }
     body.cuidadora_email = email;
@@ -227,7 +233,7 @@ async function adminAction(accion) {
     lastLiberatedEmail = '';
   }
 
-  showActionMsg('Procesando...', 'text-slate-500');
+  showActionMsg(t('processing'), 'text-slate-500');
 
   try {
     const controller = new AbortController();
@@ -244,20 +250,20 @@ async function adminAction(accion) {
     const data = await r.json();
 
     if (data.ok) {
-      showActionMsg(data.mensaje || 'Operación realizada', 'text-emerald-600');
+      showActionMsg(data.mensaje || t('operationDone'), 'text-emerald-600');
       setTimeout(() => {
         closeModal();
         load();
       }, 1200);
     } else {
-      showActionMsg(data.error || 'Error en la operación', 'text-red-500');
+      showActionMsg(data.error || t('operationError'), 'text-red-500');
     }
   } catch (e) {
     console.error('Error admin action:', e);
     if (e.name === 'AbortError') {
-      showActionMsg('Timeout: el servidor tardó demasiado. Revisa el workflow de n8n.', 'text-red-500');
+      showActionMsg(t('timeoutError'), 'text-red-500');
     } else {
-      showActionMsg('Error de conexión con el servidor', 'text-red-500');
+      showActionMsg(t('connectionError'), 'text-red-500');
     }
   }
 }
@@ -270,7 +276,7 @@ async function adminToggleEstado() {
   const horaFin = currentModalRow.hora_fin.substring(0, 5);
   const nuevoEstado = currentModalRow.estado_slot === 'cerrado' ? 'abierto' : 'cerrado';
 
-  showActionMsg('Procesando...', 'text-slate-500');
+  showActionMsg(t('processing'), 'text-slate-500');
 
   try {
     const r = await fetch(API_ADMIN_TURNO, {
@@ -288,17 +294,17 @@ async function adminToggleEstado() {
     const data = await r.json();
 
     if (data.ok) {
-      showActionMsg(nuevoEstado === 'cerrado' ? 'Turno cerrado' : 'Turno abierto', 'text-emerald-600');
+      showActionMsg(nuevoEstado === 'cerrado' ? t('shiftClosed') : t('shiftOpened'), 'text-emerald-600');
       setTimeout(() => {
         closeModal();
         load();
       }, 1200);
     } else {
-      showActionMsg(data.error || 'Error', 'text-red-500');
+      showActionMsg(data.error || t('operationError'), 'text-red-500');
     }
   } catch (e) {
     console.error('Error toggle estado:', e);
-    showActionMsg('Error de conexión', 'text-red-500');
+    showActionMsg(t('connectionError'), 'text-red-500');
   }
 }
 
@@ -315,7 +321,7 @@ function showActionMsg(text, colorClass) {
 
 async function load() {
   if (!ADMIN_TOKEN) {
-    alert("Falta token admin. Usa el enlace proporcionado.");
+    alert(t('missingAdminToken'));
     return;
   }
   localStorage.setItem('admin_token', ADMIN_TOKEN);
@@ -374,7 +380,7 @@ async function loadHorasCuidadoras() {
       tbody.innerHTML = `
         <tr>
           <td colspan="6" class="p-8 text-center text-slate-400">
-            No hay datos de horas disponibles
+            ${t('noHoursData')}
           </td>
         </tr>
       `;
@@ -410,8 +416,8 @@ async function loadHorasCuidadoras() {
   } catch (e) {
     console.error('Error cargando horas:', e);
     const errorMsg = e.name === 'AbortError'
-      ? 'Timeout: el servidor tardó demasiado en responder. Recarga la página para reintentar.'
-      : `Error al cargar los datos de horas: ${e.message}`;
+      ? t('timeoutError')
+      : `${t('operationError')}: ${e.message}`;
     tbody.innerHTML = `
       <tr>
         <td colspan="6" class="p-8 text-center text-red-500">
@@ -487,7 +493,7 @@ function buildCaregiversList() {
   }
 
   allCaregivers = Array.from(namesMap.values()).sort((a, b) =>
-    a.nombre.localeCompare(b.nombre, 'es')
+    a.nombre.localeCompare(b.nombre, getCurrentLang() === 'de' ? 'de' : 'es')
   );
 }
 
@@ -500,10 +506,13 @@ function showDropdown(matches) {
     return;
   }
 
+  const closeLabel = t('close');
+  const noEmailLabel = t('noEmailShort');
+
   dropdown.innerHTML = `
     <div class="p-4 border-b border-slate-100 flex items-center justify-between">
-      <span class="text-xs font-bold uppercase tracking-widest text-slate-400">${matches.length} cuidadora${matches.length !== 1 ? 's' : ''} encontrada${matches.length !== 1 ? 's' : ''}</span>
-      <button type="button" id="q-dropdown-close" class="text-slate-400 hover:text-slate-600 text-sm font-semibold">Cerrar</button>
+      <span class="text-xs font-bold uppercase tracking-widest text-slate-400">${matches.length} ${t('caregiverFound')}</span>
+      <button type="button" id="q-dropdown-close" class="text-slate-400 hover:text-slate-600 text-sm font-semibold">${closeLabel}</button>
     </div>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-1 p-3">
       ${matches.map(c => `
@@ -514,7 +523,7 @@ function showDropdown(matches) {
           </div>
           <div class="flex-1 min-w-0">
             <div class="font-bold text-slate-900 text-[15px] leading-tight">${c.nombre}</div>
-            ${c.email ? `<div class="text-sm text-slate-400 mt-0.5">${c.email}</div>` : '<div class="text-sm text-slate-300 mt-0.5 italic">Sin email registrado</div>'}
+            ${c.email ? `<div class="text-sm text-slate-400 mt-0.5">${c.email}</div>` : `<div class="text-sm text-slate-300 mt-0.5 italic">${noEmailLabel}</div>`}
           </div>
         </button>
       `).join('')}
@@ -570,6 +579,19 @@ function initAutocomplete() {
     }
   });
 }
+
+// ========================================
+// LANGUAGE CHANGE HANDLER
+// ========================================
+
+function onAdminLanguageChanged() {
+  // Re-render the table and header with new language
+  setRange();
+  header();
+  applyFilters();
+}
+
+window.addEventListener('languageChanged', onAdminLanguageChanged);
 
 // ========================================
 // EVENT HANDLERS

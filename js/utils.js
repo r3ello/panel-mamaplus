@@ -50,11 +50,23 @@ function isoDate(date) {
 // DATE FORMATTERS
 // ========================================
 
-// Short format: "25 ene"
-const fmtShort = new Intl.DateTimeFormat('es-ES', { day: '2-digit', month: 'short' });
+// Short format: "25 ene" / "25 Jan"
+let fmtShort = new Intl.DateTimeFormat('es-ES', { day: '2-digit', month: 'short' });
 
-// Long format: "lunes, 25 de enero"
-const fmtLong = new Intl.DateTimeFormat('es-ES', { weekday: 'long', day: '2-digit', month: 'long' });
+// Long format: "lunes, 25 de enero" / "Montag, 25. Januar"
+let fmtLong = new Intl.DateTimeFormat('es-ES', { weekday: 'long', day: '2-digit', month: 'long' });
+
+/**
+ * Update date formatters when language changes
+ */
+function updateDateFormatters() {
+  const locale = (typeof getCurrentLang === 'function' && getCurrentLang() === 'de') ? 'de-DE' : 'es-ES';
+  fmtShort = new Intl.DateTimeFormat(locale, { day: '2-digit', month: 'short' });
+  fmtLong = new Intl.DateTimeFormat(locale, { weekday: 'long', day: '2-digit', month: 'long' });
+}
+
+// Listen for language changes
+window.addEventListener('languageChanged', updateDateFormatters);
 
 /**
  * Format a week range as a readable string

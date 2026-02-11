@@ -38,21 +38,27 @@
     <div class="min-h-full flex items-center justify-center">
       <div class="bg-white rounded-3xl w-full max-w-md shadow-2xl overflow-hidden">
         <div class="p-8 border-b border-slate-100">
-          <h2 class="text-2xl font-extrabold text-slate-800">Acceso a MamaPlus</h2>
-          <p class="text-slate-500 mt-1">Introduce tu token (lo recibes por Telegram) o abre el enlace con <b>?token=</b></p>
+          <div class="flex items-center justify-between">
+            <h2 class="text-2xl font-extrabold text-slate-800" data-i18n="accessToMamaPlus">Acceso a MamaPlus</h2>
+            <button onclick="toggleLanguage()" class="lang-switcher lang-switcher-light" title="Cambiar idioma">
+              <span id="login-lang-flag" class="flag-icon flag-es"></span>
+              <span id="login-lang-text" class="text-xs font-bold">ES</span>
+            </button>
+          </div>
+          <p class="text-slate-500 mt-1" data-i18n="tokenInstructions">Introduce tu token (lo recibes por Telegram) o abre el enlace con <b>?token=</b></p>
         </div>
         <div class="p-8">
-          <label class="block text-xs font-black uppercase text-slate-400 mb-2 tracking-widest">Token</label>
-          <input id="token-input" type="text" placeholder="Pega aquí tu token"
+          <label class="block text-xs font-black uppercase text-slate-400 mb-2 tracking-widest" data-i18n="token">Token</label>
+          <input id="token-input" type="text" data-i18n-placeholder="pasteToken" placeholder="Pega aquí tu token"
             class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-900/30" />
           <p id="login-error" class="text-sm text-red-600 font-bold mt-3 hidden"></p>
           <div class="mt-6 grid grid-cols-2 gap-3">
             <button id="login-clear"
-              class="px-6 py-3 bg-slate-100 text-slate-700 font-bold rounded-xl hover:bg-slate-200 transition-colors">
+              class="px-6 py-3 bg-slate-100 text-slate-700 font-bold rounded-xl hover:bg-slate-200 transition-colors" data-i18n="clear">
               Limpiar
             </button>
             <button id="login-submit"
-              class="px-6 py-3 btn-primary text-white font-bold rounded-xl transition-all">
+              class="px-6 py-3 btn-primary text-white font-bold rounded-xl transition-all" data-i18n="enter">
               Entrar
             </button>
           </div>
@@ -82,14 +88,14 @@
             </div>
             <div class="leading-tight">
               <div class="text-white text-lg font-extrabold tracking-tight">MamaPlus</div>
-              <div class="text-white/60 text-xs font-black uppercase tracking-[0.22em]">Administración</div>
+              <div class="text-white/60 text-xs font-black uppercase tracking-[0.22em]" data-i18n="administration">Administración</div>
             </div>
           </div>
 
           <div class="mt-3 h-px bg-white/10"></div>
 
           <div class="mt-3 flex items-center justify-between">
-            <span class="text-white/70 text-xs font-bold">Panel de turnos</span>
+            <span class="text-white/70 text-xs font-bold" data-i18n="shiftPanel">Panel de turnos</span>
             <span class="text-emerald-200/90 text-[11px] font-black uppercase tracking-widest">2026</span>
           </div>
         </div>
@@ -102,7 +108,7 @@
             </div>
             <div>
               <p id="user-name" class="font-bold text-white">—</p>
-              <p id="user-role" class="text-xs text-white/70">Cuidadora</p>
+              <p id="user-role" class="text-xs text-white/70" data-i18n="caregiver">Cuidadora</p>
             </div>
           </div>
         </div>
@@ -114,39 +120,48 @@
               <div class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
                 <i data-lucide="hourglass" class="w-4 h-4 text-white/80"></i>
               </div>
-              <span class="text-xs font-bold text-white/70 uppercase tracking-wider">Horas pendientes</span>
+              <span class="text-xs font-bold text-white/70 uppercase tracking-wider" data-i18n="pendingHours">Horas pendientes</span>
             </div>
             <p id="sidebar-horas-pendientes" class="text-2xl font-extrabold text-white">—</p>
-            <p class="text-xs text-white/50 mt-1">turnos futuros asignados</p>
+            <p class="text-xs text-white/50 mt-1" data-i18n="futureAssignedShifts">turnos futuros asignados</p>
           </div>
         </div>
 
         <nav class="flex flex-col gap-2">
           <button onclick="showTab('dashboard')" id="nav-dashboard"
             class="nav-item nav-active group flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all w-full text-left">
-            <i data-lucide="calendar-range" class="w-5 h-5 text-white"></i> Mis Turnos
+            <i data-lucide="calendar-range" class="w-5 h-5 text-white"></i> <span data-i18n="myShifts">Mis Turnos</span>
           </button>
 
           <button onclick="showTab('suplencias')" id="nav-suplencias"
             class="nav-item nav-inactive group flex items-center gap-3 px-4 py-3 rounded-xl transition-all w-full text-left">
-            <i data-lucide="users" class="w-5 h-5 text-white/80"></i> Suplencias
+            <i data-lucide="users" class="w-5 h-5 text-white/80"></i> <span data-i18n="substitutions">Suplencias</span>
           </button>
 
           <button onclick="showTab('disponibilidad')" id="nav-disponibilidad"
             class="nav-item nav-inactive group flex items-center gap-3 px-4 py-3 rounded-xl transition-all w-full text-left">
-            <i data-lucide="search" class="w-5 h-5 text-white/80"></i> Disponibilidad
+            <i data-lucide="search" class="w-5 h-5 text-white/80"></i> <span data-i18n="availability">Disponibilidad</span>
           </button>
 
           <button onclick="showTab('historial')" id="nav-historial"
             class="nav-item nav-inactive group flex items-center gap-3 px-4 py-3 rounded-xl transition-all w-full text-left">
-            <i data-lucide="history" class="w-5 h-5 text-white/80"></i> Historial
+            <i data-lucide="history" class="w-5 h-5 text-white/80"></i> <span data-i18n="history">Historial</span>
           </button>
         </nav>
       </div>
 
+      <!-- Language Switcher -->
+      <button onclick="toggleLanguage()" class="lang-switcher lang-switcher-sidebar mt-6 w-full justify-center">
+        <span id="lang-flag" class="flag-icon flag-es"></span>
+        <span id="lang-btn-text" class="text-sm">ES</span>
+        <span class="text-white/40 mx-1">|</span>
+        <span id="lang-flag-alt" class="flag-icon flag-de"></span>
+        <span id="lang-btn-text-alt" class="text-sm text-white/50">DE</span>
+      </button>
+
       <button onclick="logout()"
-        class="mt-8 flex items-center justify-center gap-2 w-full bg-black/20 hover:bg-black/30 border border-white/10 text-white font-bold rounded-xl py-3 transition-colors">
-        <i data-lucide="log-out" class="w-4 h-4"></i> Cerrar sesión
+        class="mt-3 flex items-center justify-center gap-2 w-full bg-black/20 hover:bg-black/30 border border-white/10 text-white font-bold rounded-xl py-3 transition-colors">
+        <i data-lucide="log-out" class="w-4 h-4"></i> <span data-i18n="logout">Cerrar sesión</span>
       </button>
     </aside>
 
@@ -161,12 +176,12 @@
         <div class="w-16 h-16 bg-white/15 rounded-full flex items-center justify-center mx-auto mb-4">
           <i data-lucide="clock" class="w-8 h-8"></i>
         </div>
-        <h3 class="text-xl font-bold">Gestionar Turno</h3>
+        <h3 class="text-xl font-bold" data-i18n="manageShift">Gestionar Turno</h3>
         <p class="text-white/80 text-sm mt-1" id="modal-details">—</p>
       </div>
 
       <div class="p-8">
-        <label class="block text-xs font-black uppercase text-slate-400 mb-2 tracking-widest">Tipo de Acción</label>
+        <label class="block text-xs font-black uppercase text-slate-400 mb-2 tracking-widest" data-i18n="actionType">Tipo de Acción</label>
         <select id="tipo-turno"
           class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-900/30 mb-3">
         </select>
@@ -175,11 +190,11 @@
 
         <div class="grid grid-cols-2 gap-3">
           <button onclick="cerrarModal()"
-            class="px-6 py-3 bg-slate-100 text-slate-600 font-bold rounded-xl hover:bg-slate-200 transition-colors">
+            class="px-6 py-3 bg-slate-100 text-slate-600 font-bold rounded-xl hover:bg-slate-200 transition-colors" data-i18n="close">
             Cerrar
           </button>
           <button onclick="guardarTurno()"
-            class="px-6 py-3 btn-primary text-white font-bold rounded-xl transition-all">
+            class="px-6 py-3 btn-primary text-white font-bold rounded-xl transition-all" data-i18n="confirm">
             Confirmar
           </button>
         </div>
@@ -193,14 +208,14 @@
       <div class="bg-white rounded-3xl w-full max-w-md shadow-2xl overflow-hidden">
         <div class="p-6 border-b border-slate-100 flex items-center justify-between">
           <div>
-            <h3 class="text-xl font-extrabold text-slate-800">Filtros</h3>
-            <p class="text-slate-500 text-sm">Filtra slots disponibles en la semana actual</p>
+            <h3 class="text-xl font-extrabold text-slate-800" data-i18n="filters">Filtros</h3>
+            <p class="text-slate-500 text-sm" data-i18n="filterAvailableSlots">Filtra slots disponibles en la semana actual</p>
           </div>
           <button onclick="closeFilters()" class="p-2 rounded-xl hover:bg-slate-100">✕</button>
         </div>
         <div class="p-6 space-y-4">
           <div>
-            <label class="block text-xs font-black uppercase text-slate-400 mb-2 tracking-widest">Día</label>
+            <label class="block text-xs font-black uppercase text-slate-400 mb-2 tracking-widest" data-i18n="day">Día</label>
             <select id="filter-day" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-bold">
               <option value="all">Todos</option>
               <option value="0">Lunes</option>
@@ -213,9 +228,9 @@
             </select>
           </div>
           <div>
-            <label class="block text-xs font-black uppercase text-slate-400 mb-2 tracking-widest">Franja</label>
+            <label class="block text-xs font-black uppercase text-slate-400 mb-2 tracking-widest" data-i18n="timeSlot">Franja</label>
             <select id="filter-hour" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-bold">
-              <option value="all">Todas</option>
+              <option value="all" data-i18n="allSlots">Todas</option>
               <option value="10:00-11:00">10:00-11:00</option>
               <option value="11:00-12:00">11:00-12:00</option>
               <option value="12:00-13:00">12:00-13:00</option>
@@ -228,8 +243,8 @@
           </div>
 
           <div class="grid grid-cols-2 gap-3 pt-2">
-            <button onclick="closeFilters()" class="px-6 py-3 bg-slate-100 font-bold rounded-xl hover:bg-slate-200">Cerrar</button>
-            <button onclick="applyFilters()" class="px-6 py-3 btn-primary text-white font-bold rounded-xl transition-all">Aplicar</button>
+            <button onclick="closeFilters()" class="px-6 py-3 bg-slate-100 font-bold rounded-xl hover:bg-slate-200" data-i18n="close">Cerrar</button>
+            <button onclick="applyFilters()" class="px-6 py-3 btn-primary text-white font-bold rounded-xl transition-all" data-i18n="apply">Aplicar</button>
           </div>
         </div>
       </div>
@@ -239,6 +254,7 @@
   <!-- JavaScript Files -->
   <script src="js/config.js"></script>
   <script src="js/constants.js"></script>
+  <script src="js/i18n.js"></script>
   <script src="js/utils.js"></script>
   <script src="js/api.js"></script>
   <script src="js/index.js"></script>
