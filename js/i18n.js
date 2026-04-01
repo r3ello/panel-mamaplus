@@ -12,7 +12,7 @@ const translations = {
     // General
     administration: "Administración",
     shiftPanel: "Panel de turnos",
-    caregiver: "Cuidadora",
+    caregiver: "Trabajador/a",
     logout: "Cerrar sesión",
     close: "Cerrar",
     confirm: "Confirmar",
@@ -32,7 +32,7 @@ const translations = {
     pasteTokenToEnter: "Pega un token para entrar.",
     invalidToken: "Token inválido",
     sessionClosed: "Has cerrado sesión. Introduce tu token para entrar.",
-    welcome: "Bienvenida",
+    welcome: "Bienvenido/a",
 
     // Navigation
     myShifts: "Mis Turnos",
@@ -129,21 +129,21 @@ const translations = {
     // Admin page
     internalManagement: "Gestión Interna",
     adminPanel: "Panel Admin",
-    weeklyControlDescription: "Control semanal de turnos y disponibilidad de cuidadoras.",
-    searchCaregiver: "Buscar Cuidadora (Titular o Suplente)",
+    weeklyControlDescription: "Control semanal de turnos y disponibilidad de trabajadores.",
+    searchCaregiver: "Buscar trabajador (titular o suplente)",
     searchPlaceholder: "Ej: Claudia...",
     shiftStatus: "Estado del Turno",
     viewAllShifts: "Ver todos los turnos",
     onlyFree: "Solo Libres",
     onlyOccupied: "Solo Ocupados",
-    withSubstitutes: "Con Suplentes asignados",
+    withSubstitutes: "Con suplentes asignados",
     loadingDates: "Cargando fechas...",
     shiftCard: "Ficha de Turno",
     scheduleDetail: "Detalle del horario",
-    titularCaregiver: "Cuidadora Titular",
+    titularCaregiver: "Trabajador titular",
     mainResponsible: "Responsable principal",
-    substituteBody: "Cuerpo de Suplentes",
-    noAssignedCaregiver: "Sin cuidadora asignada",
+    substituteBody: "Equipo de suplentes",
+    noAssignedCaregiver: "Sin trabajador asignado",
     noEmailRegistered: "No hay correo registrado",
     noSubstitutesAssigned: "No hay suplentes asignados para este turno.",
     closeDetail: "Cerrar Detalle",
@@ -157,16 +157,16 @@ const translations = {
     cancelShift: "Cancelar",
     changeCaregiver: "Cambiar",
     promoteSubstitute: "Promover",
-    selectCaregiver: "Seleccionar Cuidadora",
-    caregiverEmail: "Email de la cuidadora",
+    selectCaregiver: "Seleccionar trabajador",
+    caregiverEmail: "Email del trabajador",
     assign: "Asignar",
     enterEmail: "Por favor ingresa un email",
     confirmCancelShift: "¿Cancelar este turno y dejarlo disponible?",
     confirmAssignCaregiver: "¿Asignar a",
     confirmPromoteSubstitute: "¿Promover la primera suplente a titular?",
     shiftReleasedSuccess: "✅ Turno liberado correctamente",
-    caregiverAssignedSuccess: "✅ Cuidadora asignada correctamente",
-    substitutePromotedSuccess: "✅ Suplente promovida a titular",
+    caregiverAssignedSuccess: "✅ Trabajador asignado correctamente",
+    substitutePromotedSuccess: "✅ Suplente promovido/a a titular",
 
     // Language
     language: "Idioma",
@@ -182,7 +182,7 @@ const translations = {
     cancelMySubstitution: "Cancelar mi suplencia",
 
     // Additional dynamic content - Admin
-    hoursPerCaregiver: "Horas por Cuidadora",
+    hoursPerCaregiver: "Horas por trabajador",
     hoursSummaryDesc: "Resumen de horas trabajadas y pendientes",
     hoursWorked: "Horas Trabajadas",
     hoursPending: "Horas Pendientes",
@@ -201,10 +201,10 @@ const translations = {
     timeoutError: "Timeout: el servidor tardó demasiado.",
     operationDone: "Operación realizada",
     operationError: "Error en la operación",
-    selectCaregiverOption: "Seleccionar cuidadora...",
-    caregiverFound: "cuidadora(s) encontrada(s)",
+    selectCaregiverOption: "Seleccionar trabajador...",
+    caregiverFound: "trabajador(es) encontrado(s)",
     noEmailShort: "Sin email registrado",
-    selectCaregiverFromList: "Selecciona una cuidadora de la lista",
+    selectCaregiverFromList: "Selecciona un trabajador de la lista",
     occupied: "Ocupado"
   },
 
@@ -212,7 +212,7 @@ const translations = {
     // General
     administration: "Verwaltung",
     shiftPanel: "Schichtübersicht",
-    caregiver: "Betreuerin",
+    caregiver: "Team",
     logout: "Abmelden",
     close: "Schließen",
     confirm: "Bestätigen",
@@ -329,8 +329,8 @@ const translations = {
     // Admin page
     internalManagement: "Interne Verwaltung",
     adminPanel: "Admin-Panel",
-    weeklyControlDescription: "Wöchentliche Kontrolle von Schichten und Verfügbarkeit der Betreuerinnen.",
-    searchCaregiver: "Betreuerin suchen (Titular oder Vertretung)",
+    weeklyControlDescription: "Wöchentliche Kontrolle von Schichten und Verfügbarkeit des Teams.",
+    searchCaregiver: "Team suchen (Titular oder Vertretung)",
     searchPlaceholder: "Z.B.: Claudia...",
     shiftStatus: "Schichtstatus",
     viewAllShifts: "Alle Schichten anzeigen",
@@ -340,10 +340,10 @@ const translations = {
     loadingDates: "Daten werden geladen...",
     shiftCard: "Schichtkarte",
     scheduleDetail: "Zeitplandetails",
-    titularCaregiver: "Titular-Betreuerin",
-    mainResponsible: "Hauptverantwortliche",
+    titularCaregiver: "Titular",
+    mainResponsible: "Hauptverantwortlich",
     substituteBody: "Vertretungsteam",
-    noAssignedCaregiver: "Keine Betreuerin zugewiesen",
+    noAssignedCaregiver: "Kein Team zugewiesen",
     noEmailRegistered: "Keine E-Mail registriert",
     noSubstitutesAssigned: "Keine Vertretungen für diese Schicht zugewiesen.",
     closeDetail: "Details schließen",
@@ -357,16 +357,16 @@ const translations = {
     cancelShift: "Stornieren",
     changeCaregiver: "Ändern",
     promoteSubstitute: "Befördern",
-    selectCaregiver: "Betreuerin auswählen",
-    caregiverEmail: "E-Mail der Betreuerin",
+    selectCaregiver: "Team auswählen",
+    caregiverEmail: "E-Mail des Teams",
     assign: "Zuweisen",
     enterEmail: "Bitte E-Mail eingeben",
     confirmCancelShift: "Diese Schicht stornieren und freigeben?",
     confirmAssignCaregiver: "Zuweisen an",
-    confirmPromoteSubstitute: "Erste Vertretung zur Titularin befördern?",
+    confirmPromoteSubstitute: "Erste Vertretung zu Titular befördern?",
     shiftReleasedSuccess: "✅ Schicht erfolgreich freigegeben",
-    caregiverAssignedSuccess: "✅ Betreuerin erfolgreich zugewiesen",
-    substitutePromotedSuccess: "✅ Vertretung zur Titularin befördert",
+    caregiverAssignedSuccess: "✅ Team erfolgreich zugewiesen",
+    substitutePromotedSuccess: "✅ Vertretung zu Titular befördert",
 
     // Language
     language: "Sprache",
@@ -382,7 +382,7 @@ const translations = {
     cancelMySubstitution: "Meine Vertretung stornieren",
 
     // Additional dynamic content - Admin
-    hoursPerCaregiver: "Stunden pro Betreuerin",
+    hoursPerCaregiver: "Stunden pro Team",
     hoursSummaryDesc: "Übersicht über geleistete und ausstehende Stunden",
     hoursWorked: "Geleistete Stunden",
     hoursPending: "Ausstehende Stunden",
@@ -391,7 +391,7 @@ const translations = {
     noHoursData: "Keine Stundendaten verfügbar",
     loadingData: "Daten werden geladen...",
     releaseShift: "Schicht freigeben (Titular entfernen)",
-    promoteToTitular: "Vertretung zur Titularin befördern",
+    promoteToTitular: "Vertretung zu Titular befördern",
     closeShiftBlock: "Schicht schließen (sperren)",
     openShift: "Schicht öffnen",
     shiftClosed: "Schicht geschlossen",
@@ -401,10 +401,10 @@ const translations = {
     timeoutError: "Timeout: Server hat zu lange gebraucht.",
     operationDone: "Vorgang abgeschlossen",
     operationError: "Fehler bei der Operation",
-    selectCaregiverOption: "Betreuerin auswählen...",
-    caregiverFound: "Betreuerin(nen) gefunden",
+    selectCaregiverOption: "Team auswählen...",
+    caregiverFound: "Team gefunden",
     noEmailShort: "Keine E-Mail registriert",
-    selectCaregiverFromList: "Bitte Betreuerin aus der Liste auswählen",
+    selectCaregiverFromList: "Bitte Team aus der Liste auswählen",
     occupied: "Besetzt"
   }
 };
@@ -429,10 +429,10 @@ const STATUS_CONFIG_I18N = {
     disponible:   { texto: 'Disponible',     bg: 'bg-white/60 text-slate-400 border-orange-100/50',     emoji: '🔄' }
   },
   de: {
-    titular_mio:  { texto: 'Titular (du)',   bg: 'bg-emerald-50 text-emerald-700 border-emerald-100', emoji: '✅' },
-    titular_otro: { texto: 'Besetzt',        bg: 'bg-slate-100 text-slate-500 border-slate-200',       emoji: '🔒' },
-    suplente_mio: { texto: 'Vertretung (du)',bg: 'bg-amber-50 text-amber-700 border-amber-100',         emoji: '🙋‍♀️' },
-    disponible:   { texto: 'Verfügbar',      bg: 'bg-white/60 text-slate-400 border-orange-100/50',     emoji: '🔄' }
+    titular_mio:  { texto: 'Titular (du)',    bg: 'bg-emerald-50 text-emerald-700 border-emerald-100', emoji: '✅' },
+    titular_otro: { texto: 'Besetzt',         bg: 'bg-slate-100 text-slate-500 border-slate-200',       emoji: '🔒' },
+    suplente_mio: { texto: 'Vertretung (du)', bg: 'bg-amber-50 text-amber-700 border-amber-100',        emoji: '🙋‍♀️' },
+    disponible:   { texto: 'Verfügbar',       bg: 'bg-white/60 text-slate-400 border-orange-100/50',    emoji: '🔄' }
   }
 };
 
@@ -474,6 +474,11 @@ function setLanguage(lang) {
 
   // Update HTML lang attribute
   document.documentElement.lang = lang;
+
+  // Update page title
+  document.title = lang === 'de'
+    ? 'MamaPlus · Team-Panel'
+    : 'MamaPlus · Panel trabajador';
 
   // Update all elements with data-i18n attribute
   document.querySelectorAll('[data-i18n]').forEach(el => {
